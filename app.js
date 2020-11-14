@@ -1,12 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
-	const grid = document.querySelector('.grid');
+	const grid = document.getElementById('grid');
+	const sel = document.getElementById('selection');
+	const sel_mask = document.getElementById('selection_mask');
+	const sel_cancel = document.getElementById('sel_cancel');
+	const sel_dig = document.getElementById('sel_dig');
+	const sel_flag = document.getElementById('sel_flag');
+	const sel_unflag = document.getElementById('sel_unflag');
+
 	let width = 10;
 	let height = 10;
 	let bombAmout = 20;
 
 	// 爆弾かそうでないかのboradArrayとフラッグや掘ったといったデータを別に管理し、
 	// 描画するときにそれらを合成してhtml elmに落とす
-	let boardArray = []
+	let boardArray = [] // true -> bomb false -> valid
+	let flagArray = [] // true -> flagged
+	let diggedArray = [] // true -> digged
+
+	let isFirst = true; // はじめの一回終わったらfalseに
 
 	// create board
 	function createBoard() {
@@ -23,8 +34,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			boardArray[h] = oneD_Array.slice(oneD_startIdx, oneD_startIdx+width);
 		}
 		
+		// init statusArrays and create html elms
 		let id = 0;
 		for (let y = 0; y < height; y++) {
+			flagArray[y] = Array(width).fill(false);
+			diggedArray[y] = Array(width).fill(false);
 			for (let x = 0; x < width; x++) {
 				const square = document.createElement('div');
 				square.dataset.y = y;
@@ -34,8 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				square.setAttribute('id', id);
 				square.setAttribute('digged', false)
 				square.setAttribute('flag', false)
+
+				square.addEventListener('click', function(e) { click(e) });
 				grid.appendChild(square);
 				id++;
+
 			}
 		}
 
@@ -79,4 +96,34 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 	update()
+
+	
+	function click(e) {
+		const x = e.target.dataset.x;
+		const y = e.target.dataset.y;
+		if (diggedArray[y][x] || flagArray[y][x]) return;
+		selecting(e, x, y);
+	}
+
+	function selecting(e, x, y) {
+		sel_mask.style.display = 'block';
+		sel.style.display = 'block';
+		sel_mask.addEventListener('click', cancel_select)
+		sel_cancel.addEventListener('click', cancel_select)
+
+		// if flaged, hide flag btn
+		if (flagArray[y][x]) sel_flag.style.display = 'none';
+		// if digged, hide flag and unflag btn
+		if (diggedArray[y][x]) {
+			sel_flag.style.display = 'none';
+			sel_unflag.style.display = 'none';
+		}
+
+
+	}
+
+	function cancel_select() {
+		sel.style.display = 'none';
+		sel_mask.style.display = 'none'
+	}
 })

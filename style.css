@@ -1,3 +1,13 @@
+body {
+	margin: 0;
+	padding: 0;
+}
+
+.gamefield {
+	padding: 10px;
+	position: relative;
+}
+
 .grid {
 	height: 400px;
 	width: 400px;
@@ -11,9 +21,43 @@
 	text-align: center;
 	line-height: 40px;
 	color: white;
+	opacity: 0.6;
 	user-select: none;
 }
 
 .bomb {
 	background: orange;
+}
+
+[data-digged="true"] {
+	font-weight: bold;
+	opacity: 1;
+}
+
+.selection_mask {
+	display: none;
+	position: absolute;
+	z-index: 8;
+	top: 0; left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(255, 255, 255, 0.3);
+}
+.selection {
+	display: none;
+	z-index: 10;
+	position: absolute;
+	bottom: 0; left: 50%;
+	transform: translateY(100%) translateX(-50%);
+	background: rgba(0, 0, 0, 0.7);
+	padding: 10px;
+	border-radius: 16px;
+}
+.selection_inner {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+.selection button {
+	font-size: 22px;
 }
