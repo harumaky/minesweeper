@@ -1,0 +1,30 @@
+.conf {
+	margin: 10px;
+}
+.conf input {
+	padding: 6px;
+	font-size: 18px;
+	margin-right: 12px;
+	margin-left: 2px;
+}
+
+.startbtn_wrap {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100px;
+}
+#startbtn {
+	background: #ff7c48;
+	color: white;
+	border: none;
+	padding: 6px 12px;
+	border-radius: 10px;
+	font-size: 22px;
+	text-align: center;
+	display: inline-block;
+}
+
+.btn:hover {
+	opacity: 0.6;
+}
