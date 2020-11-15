@@ -19,7 +19,7 @@ body {
 	flex-wrap: wrap;
 	background: grey;
 }
-.grid div {
+.grid div { /* jsで.squareに名付けられる */
 	height: 40px;
 	width: 40px;
 	text-align: center;
@@ -31,19 +31,25 @@ body {
 }
 
 .bomb {
-	background: orange;
+	background: darkorange;
 }
-
-div[data-digged="true"] {
+.square[data-num]::before {
+	content: attr(data-num);
+}
+.square.digged {
 	font-weight: bold;
-	background: #222;
+	background: brown;
 	opacity: 1;
 }
-div[data-flag="true"]::after {
+.square.flag::after {
 	content: '🚩';
 }
-div.selected {
+.square.selected {
 	border: 2px solid white;
+}
+.square.digged.zero {
+	background: lightgreen;
+	color: lightgreen;
 }
 
 
