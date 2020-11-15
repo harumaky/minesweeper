@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	const sel_flag = document.getElementById('sel_flag');
 	const sel_unflag = document.getElementById('sel_unflag');
 
-	sel_mask.addEventListener('click', close_select)
-	sel_cancel.addEventListener('click', close_select)
+	sel_mask.addEventListener('click', cancel_select)
+	sel_cancel.addEventListener('click', cancel_select)
 
 	let width = 10;
 	let height = 10;
@@ -155,6 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				id++;
 			}
 		}
+		showJSArrays()
 	}
 	
 	function click(e) {
@@ -178,6 +179,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		sel_mask.style.display = 'block';
 		sel.style.display = 'block';
+
+		const m_open = new Audio('./sound/open.mp3');
+		m_open.volume = 0.3;
+		m_open.play();
 		
 		// show all options and set all listeners first
 		sel_unflag.style.display = 'block';
@@ -197,6 +202,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
+	function cancel_select() {
+		const m_cancel = new Audio('./sound/cancel.mp3');
+		m_cancel.volume = 0.4;
+		m_cancel.play();
+		close_select();
+	}
 	function close_select() {
 		getElmByCoord(selecting_x, selecting_y).classList.remove('selected');
 		selecting_x = -1;
@@ -214,16 +225,19 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	function dig() {
+		console.log(selecting_x, selecting_y);
 		if (boardArray[selecting_y][selecting_x]) {
 			gameover();
 			return;
 		}
 		diggedArray[selecting_y][selecting_x] = true;
+		let m_dig = new Audio('./sound/dig.mp3');
+		m_dig.play();
 		updateHTML();
 		checkGame();
 
 		// digAroundIfPossible
-		if (!numsArray[selecting_y][selecting_x]) {
+		if (numsArray[selecting_y][selecting_x] === 0) {
 			// only possible when there's no flag around it
 			let x = selecting_x
 			let y = selecting_y;
@@ -242,16 +256,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function flag() {
 		flagArray[selecting_y][selecting_x] = true;
+		const m_flag = new Audio('./sound/flag.mp3');
+		m_flag.play();
 		updateHTML();
 		close_select();
 	}
 	function unflag() {
 		flagArray[selecting_y][selecting_x] = false;
+		const m_unflag = new Audio('./sound/unflag.mp3');
+		m_unflag.volume = 0.3
+		m_unflag.play();
 		updateHTML();
 		close_select();
 	}
 
 	function digAround(x, y) {	
+		let m_pipipi = new Audio('./sound/pipipi.mp3');
+		m_pipipi.play();
 		setTimeout(() => {
 			loopIfPossible(x-1, y-1);
 			loopIfPossible(x, y-1);
@@ -263,16 +284,16 @@ document.addEventListener('DOMContentLoaded', () => {
 			loopIfPossible(x+1, y+1);
 			
 			if (y > 0) {
-				diggedArray[y-1][x-1] = true;
+				if (x > 0) diggedArray[y-1][x-1] = true;
 				diggedArray[y-1][x] = true;
-				diggedArray[y-1][x+1] = true;
+				if (x < width-1) diggedArray[y-1][x+1] = true;
 			}
-			diggedArray[y][x-1] = true;
-			diggedArray[y][x+1] = true;
+			if (x > 0) diggedArray[y][x-1] = true;
+			if (x < width-1) diggedArray[y][x+1] = true;
 			if (y < height-1) {
-				diggedArray[y+1][x-1] = true;
+				if (x < 0) diggedArray[y+1][x-1] = true;
 				diggedArray[y+1][x] = true;
-				diggedArray[y+1][x+1] = true;
+				if (x < width-1) diggedArray[y+1][x+1] = true;
 			}
 			updateHTML();
 			checkGame();
@@ -291,13 +312,23 @@ document.addEventListener('DOMContentLoaded', () => {
 	function checkGame() {
 		const digged_amount = flatten(diggedArray).filter(e => e).length;
 		console.log((digged_amount));
-		if (digged_amount === width*height - bombAmout) {
-			alert("You win!");
-		}
+		if (digged_amount === width*height - bombAmout) gameClear();
+	}
+
+	function gameClear() {
+		const m_clear = new Audio('./sound/win.mp3');
+		m_clear.play()
 	}
 
 	function gameover() {
-		alert('Bomb!');
+		const m_bomb = new Audio('./sound/bomb.mp3');
+		m_bomb.volume = 0.6;
+		m_bomb.addEventListener('ended', function() {
+			const m_tin = new Audio('./sound/tin.mp3');
+			m_tin.play();
+		})
+		m_bomb.play();
+
 		restart();
 	}
 
