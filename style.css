@@ -1,3 +1,7 @@
+* {
+	box-sizing: border-box;
+}
+
 body {
 	margin: 0;
 	padding: 0;
@@ -23,16 +27,25 @@ body {
 	color: white;
 	opacity: 0.6;
 	user-select: none;
+	border: 1px solid #aaa;
 }
 
 .bomb {
 	background: orange;
 }
 
-[data-digged="true"] {
+div[data-digged="true"] {
 	font-weight: bold;
+	background: #222;
 	opacity: 1;
 }
+div[data-flag="true"]::after {
+	content: '🚩';
+}
+div.selected {
+	border: 2px solid white;
+}
+
 
 .selection_mask {
 	display: none;
