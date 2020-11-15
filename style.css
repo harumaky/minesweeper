@@ -19,7 +19,7 @@ body {
 	flex-wrap: wrap;
 	background: grey;
 }
-.grid div { /* jsで.squareに名付けられる */
+.square { 
 	height: 40px;
 	width: 40px;
 	text-align: center;
@@ -30,16 +30,16 @@ body {
 	border: 1px solid #aaa;
 }
 
-.bomb {
+.square.bomb {
 	background: darkorange;
-}
-.square[data-num]::before {
-	content: attr(data-num);
 }
 .square.digged {
 	font-weight: bold;
 	background: brown;
 	opacity: 1;
+}
+.square.digged::after {
+	content: attr(data-num);
 }
 .square.flag::after {
 	content: '🚩';
@@ -53,7 +53,7 @@ body {
 }
 
 
-.selection_mask {
+.sel_mask {
 	display: none;
 	position: absolute;
 	z-index: 8;
@@ -62,7 +62,7 @@ body {
 	height: 100%;
 	background: rgba(255, 255, 255, 0.3);
 }
-.selection {
+.sel {
 	display: none;
 	z-index: 10;
 	position: absolute;
@@ -72,11 +72,11 @@ body {
 	padding: 10px;
 	border-radius: 16px;
 }
-.selection_inner {
+.sel_inner {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
 }
-.selection button {
+.sel button {
 	font-size: 22px;
 }

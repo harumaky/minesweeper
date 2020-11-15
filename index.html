@@ -5,15 +5,15 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>マインスイーパー</title>
 	<link rel="stylesheet" href="style.css">
-	<script src="app.js"></script>
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 </head>
 <body>
 	<h1>Super Duper Minesweeper!</h1>
 	<div class="gamefield" id="gamefield">
 		<div class="grid" id="grid"></div>
-		<div class="selection_mask" id="selection_mask"></div>
-		<div class="selection" id="selection">
-			<div class="selection_inner">
+		<div class="sel_mask" id="sel_mask"></div>
+		<div class="sel" id="sel">
+			<div class="sel_inner">
 				<button id="sel_cancel">❌</button>
 				<button id="sel_unflag">🔓</button>
 				<button id="sel_flag">🚩</button>
@@ -21,5 +21,8 @@
 			</div>
 		</div>
 	</div>
+
+
+	<script src="app.js" type="module"></script>
 </body>
 </html>
