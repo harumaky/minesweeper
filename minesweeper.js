@@ -8,11 +8,12 @@ export class Game {
 	 * @param {Number} height 
 	 * @param {Number} bombAmount 
 	 */
-	constructor(elms, width, height, bombAmount) {
+	constructor(elms, width, height, bombAmount, squareSize) {
 		this.elm = elms;
 		this.width = width;
 		this.height = height;
 		this.bombAmount = bombAmount;
+		this.squareSize = squareSize;
 	}
 
 	init() {
@@ -36,20 +37,24 @@ export class Game {
 
 	restart() {
 		while(grid.firstChild) grid.removeChild(grid.firstChild);
+		clearTimeout(this.timerId);
 		this.init();
 	}
 
 	createFirstHTML() {
-		if (Math.round(this.width*this.height*0.8) < this.bombAmount) {
-			console.error("too many bombs");
-			return false;
-		}
 		let id = 0;
 		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
 				const square = document.createElement('div');
 				square.dataset.y = y;
 				square.dataset.x = x;
+
+				square.style.width = this.squareSize + 'px';
+				square.style.height = this.squareSize + 'px';
+				square.style.lineHeight = this.squareSize + 'px';
+				square.style.fontSize = this.squareSize / 2 + 10 + 'px';
+
+
 				const className = 'valid';
 				square.classList.add(className);
 				square.classList.add('square');
@@ -60,6 +65,7 @@ export class Game {
 				id++;
 			}
 		}
+		this.elm.h_flags.textContent = this.bombAmount;
 	}
 
 	/**
@@ -100,13 +106,16 @@ export class Game {
 					square.classList.add('bomb');
 				}
 				id++;
-			
 			}
 		}
 		this.sel_x = init_x, this.sel_y = init_y;
 		this.setNums();
 		this.dig();
-		this.showJSArrays();
+
+
+		this.startTime = Date.now();
+		this.elapsed = 0;
+		this.timer_count();
 	}
 
  	setNums() {
@@ -158,6 +167,8 @@ export class Game {
 				id++;
 			}
 		}
+		const flag_reminder = this.bombAmount - this.flatten(this.flagArray).filter(e => e).length;
+		this.elm.h_flags.textContent = flag_reminder;
 		this.showJSArrays();
 	}
 
@@ -232,8 +243,6 @@ export class Game {
 	}
 
 	digAround(x, y) {	
-		let m_pipipi = new Audio('./sound/pipipi.mp3');
-		m_pipipi.play();
 		setTimeout(() => {
 			this.loopIfPossible(x-1, y-1);
 			this.loopIfPossible(x, y-1);
@@ -301,12 +310,15 @@ export class Game {
 
 	checkGame() {
 		const digged_amount = this.flatten(this.diggedArray).filter(e => e).length;
-		if (digged_amount === this.width*this.height - this.bombAmout) this.gameClear();
+		console.log(digged_amount);
+		if (digged_amount === this.width*this.height - this.bombAmount) this.gameClear();
 	}
 	
 	gameClear() {
 		const m_clear = new Audio('./sound/win.mp3');
-		m_clear.play()
+		m_clear.play();
+		alert('wwww');
+		this.restart();
 	}
 	
 	gameover() {
@@ -320,6 +332,22 @@ export class Game {
 		m_bomb.play();
 	
 		this.restart();
+	}
+
+	/* timer */
+	timer_count() {
+		const self = this;
+		this.timerId = setTimeout(function() {
+			self.elapsed = Date.now() - self.startTime;
+			let min = Math.floor(self.elapsed / 60000);
+			let sec = Math.floor(self.elapsed % 60000 / 1000);
+			min = ('0' + min).slice(-2);
+			sec = ('0' + sec).slice(-2);
+			
+			self.elm.h_time.textContent = `${min}:${sec}`;
+
+			self.timer_count();
+		}, 1000);
 	}
 
 	/* utils */
@@ -343,7 +371,5 @@ export class Game {
 		console.log("nums");
 		console.log(this.numsArray);
 	}
-
-
 	
 }

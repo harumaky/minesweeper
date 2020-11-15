@@ -1,56 +1,200 @@
-* {
-	box-sizing: border-box;
-}
-
-body {
-	margin: 0;
-	padding: 0;
-}
-
-.gamefield {
+.screen {
+	width: 100%;
+	height: 100vh;
+	background: #eee;
+	background-image: url("./img/top_back.png");
+	background-repeat: no-repeat;
 	padding: 10px;
+	overflow: hidden;
+}
+h1 {
+	font-size: 3.4rem;
+	padding-top: 20px;
+	padding-bottom: 10px;
+	text-align:center;
+	line-height:0.95em;
+	font-weight:bold;
+	color: #000;
+	text-shadow: 
+		0 0 0.05em #FFF59D,
+		0 0 0.06em #FFF59D,
+		0 0 0.07em #FFF59D,
+		0 0 0.08em #FFF59D,
+		0 0 0.09em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.50em #FFF59D;
+}
+.lobby .form-group {
+	text-align: center;
+	padding-top: 30px;
+}
+.lobby .input-group {
+	max-width: 500px;
+	margin: 0 auto;
+	margin-bottom: 30px;
+}
+input.warn {
+	border: red 3px solid;
+	animation: shiv 0.2s infinite;
+}
+@keyframes shiv {
+    0% {transform: translate(0px, 0px) rotateZ(0deg)}
+    25% {transform: translate(2px, 2px) rotateZ(1deg)}
+    50% {transform: translate(0px, 2px) rotateZ(0deg)}
+    75% {transform: translate(2px, 0px) rotateZ(-1deg)}
+    100% {transform: translate(0px, 0px) rotateZ(0deg)}
+}
+.start-btn {
+	width: 300px;
+	font-size: 2.6rem;
+	background: rgba(255,255,255, 0.3);
+	font-weight: bold;
+	text-shadow: 
+		0 0 0.05em #FFF59D,
+		0 0 0.06em #FFF59D,
+		0 0 0.07em #FFF59D,
+		0 0 0.08em #FFF59D,
+		0 0 0.09em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.50em #FFF59D;
+	box-shadow:
+		0 0 0.05em #FFF59D,
+		0 0 0.06em #FFF59D,
+		0 0 0.07em #FFF59D,
+		0 0 0.08em #FFF59D,
+		0 0 0.09em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.50em #FFF59D;
+}
+.start-btn:hover {
+	opacity: 0.8;
+	transition: all 0.8s;
+}
+
+.gamefield-wrap {
+	display: none;
+	align-items: center;
+	position: absolute;
+	top: 0; left: 0;
+	width: 100%;
+	height: 100vh;
+	z-index: 1;
+	background: rgba(255,255,255, 0.5);
+}
+.gamefield {
 	position: relative;
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	margin: 0 auto;
+}
+.game-head {
+	width: 100%;
+	height: 50px;
+	background: #4A752C;
+	color: white;
+	line-height: 50px;
+	font-size: 1.6rem;
+	text-align: center;
+}
+
+.time {
+	min-width: 100px;
+}
+#h_sound {
+	background-size: contain;
+	width: 50px;
+	height: 50px;
+	background-repeat: no-repeat;
+}
+#h_sound:hover {
+	opacity: 0.6;
+}
+#h_sound.on {
+	background-image: url('./img/sound_off.svg');
+}
+#h_sound.off {
+	background-image: url('./img/sound_on.svg');
+}
+.back {
+	width: 50px;
+	height: 50px;
+	background-image: url('./img/del.svg');
+	background-repeat: no-repeat;
+	background-size: 100%;
+	background-position: center center;
+}
+.back:hover {
+	opacity: 0.6;
 }
 
 .grid {
-	height: 400px;
-	width: 400px;
+	width: 100%;
 	display: flex;
 	flex-wrap: wrap;
 	background: grey;
 }
 .square { 
-	height: 40px;
-	width: 40px;
 	text-align: center;
 	line-height: 40px;
 	color: white;
-	opacity: 0.6;
+	background: #9ed439;
 	user-select: none;
-	border: 1px solid #aaa;
+	border: 1px solid rgba(230,230,230,0.2);
+	position: relative;
+}
+.square:nth-child(odd) {
+	background: #b7e261;
 }
 
 .square.bomb {
 	background: darkorange;
 }
+
 .square.digged {
 	font-weight: bold;
-	background: brown;
+	background: #D7B899;
 	opacity: 1;
 }
 .square.digged::after {
 	content: attr(data-num);
 }
 .square.flag::after {
-	content: '🚩';
+	content: '';
+	position: absolute;
+	top: 0; left: 0;
+	width: 100%;
+	height: 100%;
+	background-image: url('./img/flag.png');
+	background-size: 85%;
+	background-repeat: no-repeat;
+	background-position: center center;
 }
 .square.selected {
 	border: 2px solid white;
 }
 .square.digged.zero {
-	background: lightgreen;
-	color: lightgreen;
+	background: #D7B899;
+	color: transparent;
 }
+
+
+/* number colers */
+.square[data-num='1'] {color: #2196f3;}
+.square[data-num='2'] {color: #2e7d32;}
+.square[data-num='3'] {color: #ff5722;}
+.square[data-num='4'] {color: #ef6c00;}
+.square[data-num='5'] {color: #e91e63;}
+.square[data-num='6'] {color: #311b92;}
+.square[data-num='7'] {color: #9c27b0;}
+.square[data-num='8'] {color: #212121;}
+
 
 
 .sel_mask {

@@ -2,22 +2,81 @@
 <html lang="ja">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width">
 	<title>マインスイーパー</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 	<link rel="stylesheet" href="style.css">
 	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
-	<h1>Super Duper Minesweeper!</h1>
-	<div class="gamefield" id="gamefield">
-		<div class="grid" id="grid"></div>
-		<div class="sel_mask" id="sel_mask"></div>
-		<div class="sel" id="sel">
-			<div class="sel_inner">
-				<button id="sel_cancel">❌</button>
-				<button id="sel_unflag">🔓</button>
-				<button id="sel_flag">🚩</button>
-				<button id="sel_dig">⛏</button>
+	<div class="screen">
+		<div class="lobby" id="lobby">
+			<h1>Super Duper Minesweeper!</h1>
+			<form id="gameForm">
+				<div class="form-group">
+					<div class="input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text">幅</span>
+						</div>
+						<input class="form-control" type="number" id="conf_width" value="8" max="50" min="6" required>
+
+						<div class="input-group-prepend">
+							<span class="input-group-text">高さ</span>
+						</div>
+						<input class="form-control" type="number" id="conf_height" value="10" max="50" min="6" required>
+
+						<div class="input-group-prepend">
+							<span class="input-group-text">爆弾</span>
+						</div>
+						<input class="form-control" type="number" id="conf_bomb" value="20" required>
+					</div>
+				</div>
+				<div class="input-group justify-content-center">
+					<button type="submit" class="btn start-btn">Start</button>
+				</div>
+			</form>
+		</div>
+
+		<div class="gamefield-wrap" id="gamewrap">
+			<div class="gamefield" id="gamefield">
+				<div class="game-head">
+					<div class="row">
+						<div class="col-4 col-sm-3">
+							<div class="flags px-2">
+								<img src="./img/flag.png" alt="" class="img-fluid" width="30px">
+								<p id="h_flags" class="d-inline-block"></p>
+							</div>
+
+						</div>
+						<div class="col-3 col-sm-6">
+							<div class="time">
+								<div id="h_time">00:00</div>
+							</div>
+						</div>
+						<div class="col-5 col-sm-3">
+							<div class="sound d-inline-block">
+								<div id="h_sound" class="off"></div>
+							</div>
+							<div class="back d-inline-block">
+								<div id="h_back" class="back"></div>
+							</div>
+							
+						</div>
+					</div>
+					
+				</div>
+				
+				<div class="grid" id="grid"></div>
+				<div class="sel_mask" id="sel_mask"></div>
+				<div class="sel" id="sel">
+					<div class="sel_inner">
+						<button id="sel_cancel">❌</button>
+						<button id="sel_unflag">🔓</button>
+						<button id="sel_flag">🚩</button>
+						<button id="sel_dig">⛏</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
