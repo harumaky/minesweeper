@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		} while (oneD_Array[oneD_init_idx])
 		
 		// init boradArray and statusArrays, then apply them into HTML
-		// init boradArray and statusArrays
 		for (let y = 0; y < height; y++) {
 			let oneD_startIdx = y * width;
 			boardArray[y] = oneD_Array.slice(oneD_startIdx, oneD_startIdx+width);
@@ -221,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		diggedArray[selecting_y][selecting_x] = true;
 		updateHTML();
+		checkGame();
 
 		// digAroundIfPossible
 		if (!numsArray[selecting_y][selecting_x]) {
@@ -275,6 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				diggedArray[y+1][x+1] = true;
 			}
 			updateHTML();
+			checkGame();
 		}, 50);
 	}
 	function loopIfPossible(x, y) {
@@ -284,9 +285,20 @@ document.addEventListener('DOMContentLoaded', () => {
 		return false;
 	}
 
+	function flatten(data) {
+		return data.reduce((acm, e) => Array.isArray(e) ? acm.concat(flatten(e)) : acm.concat(e), []);
+	}
+	function checkGame() {
+		const digged_amount = flatten(diggedArray).filter(e => e).length;
+		console.log((digged_amount));
+		if (digged_amount === width*height - bombAmout) {
+			alert("You win!");
+		}
+	}
+
 	function gameover() {
 		alert('Bomb!');
-		restart()
+		restart();
 	}
 
 	function restart() {
