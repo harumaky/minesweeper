@@ -1,14 +1,15 @@
 'use strict';
+import { EventEmitter } from './EventEmitter.js';
 
-export class Game {
+export class Minesweeper extends EventEmitter {
 	/**
-	 * 
-	 * @param {HTMLElement} elms
+	 * @param {DOMElement} elms
 	 * @param {Number} width 
 	 * @param {Number} height 
 	 * @param {Number} bombAmount 
 	 */
 	constructor(elms, width, height, bombAmount, squareSize) {
+		super();
 		this.elm = elms;
 		this.width = width;
 		this.height = height;
@@ -26,23 +27,13 @@ export class Game {
 		this.isFirst = true; // はじめの一回終わったらfalseに
 		this.sel_x = -1;
 		this.sel_y = -1;
-		this.elm.sel_mask.addEventListener('click', this.cancel_select.bind(this));
-		this.elm.sel_cancel.addEventListener('click', this.cancel_select.bind(this));
+		this.elm.sel_mask.addEventListener('click', this.cancelSelect.bind(this));
+		this.elm.sel_cancel.addEventListener('click', this.cancelSelect.bind(this));
 		this.elm.sel_unflag.addEventListener('click', this.unflag.bind(this));
 		this.elm.sel_flag.addEventListener('click', this.flag.bind(this));
 		this.elm.sel_dig.addEventListener('click', this.dig.bind(this));
-		this.elm.h_back.addEventListener('click', this.restart.bind(this));
 
-		this.createFirstHTML();
-	}
-
-	restart() {
-		while(grid.firstChild) grid.removeChild(grid.firstChild);
-		clearTimeout(this.timerId);
-		this.init();
-	}
-
-	createFirstHTML() {
+		// Create first HTML
 		let id = 0;
 		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
@@ -67,7 +58,9 @@ export class Game {
 			}
 		}
 		this.elm.h_flags.textContent = this.bombAmount;
+		this.emit('initialized');
 	}
+
 
 	/**
 	 * createJSBoard and apply it to HTML
@@ -143,6 +136,7 @@ export class Game {
 		this.startTime = Date.now();
 		this.elapsed = 0;
 		this.timer_count();
+		this.emit('started');
 	}
 
  	setNums() {
@@ -180,7 +174,7 @@ export class Game {
 		}
 	}
 
-	updateHTML() {
+	redraw() {
 		let id = 0;
 		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
@@ -196,7 +190,7 @@ export class Game {
 		}
 		const flag_reminder = this.bombAmount - flatten(this.flagArray).filter(e => e).length;
 		this.elm.h_flags.textContent = flag_reminder;
-		this.showJSArrays();
+		this.emit('redrew');
 	}
 
 	click(e) {
@@ -216,14 +210,10 @@ export class Game {
 	select(e, x, y) {
 		this.sel_x = x;
 		this.sel_y = y;
-		this.getElmByCoord(x, y).classList.add('selected');
+		getElmByCoord(x, y).classList.add('selected');
 	
 		this.elm.sel_mask.style.display = 'block';
 		this.elm.sel.style.display = 'block';
-	
-		const m_open = new Audio('./sound/open.mp3');
-		m_open.volume = 0.3;
-		m_open.play();
 		
 		// show all options and set all listeners first
 		this.elm.sel_unflag.style.display = 'block';
@@ -238,17 +228,19 @@ export class Game {
 			// if not flagged, hide unflag btn
 			this.elm.sel_unflag.style.display = 'none';
 		}
+
+		this.emit('selected');
 	}	
 	
 	dig() {
 		if (this.boardArray[this.sel_y][this.sel_x]) {
-			this.gameover();
+			this.gameFail();
 			return;
 		}
+
 		this.diggedArray[this.sel_y][this.sel_x] = true;
-		let m_dig = new Audio('./sound/dig.mp3');
-		m_dig.play();
-		this.updateHTML();
+		this.emit('digged');
+		this.redraw();
 		this.checkGame();
 	
 		// digAroundIfPossible
@@ -264,9 +256,12 @@ export class Game {
 			if (y < this.height-1) {
 				if (this.flagArray[y+1][x-1] || this.flagArray[y+1][x] || this.flagArray[y+1][x+1]) possible = false;
 			}
-			if (possible) this.digAround(x, y);
+			if (possible) {
+				this.digAround(x, y);
+				this.emit('bigdigged');
+			}
 		}
-		this.close_select();
+		this.unselect();
 	}
 
 	digAround(x, y) {	
@@ -292,7 +287,7 @@ export class Game {
 				this.diggedArray[y+1][x] = true;
 				if (x < this.width-1) this.diggedArray[y+1][x+1] = true;
 			}
-			this.updateHTML();
+			this.redraw();
 			this.checkGame();
 		}, 50);
 	}
@@ -306,33 +301,28 @@ export class Game {
 
 	flag() {
 		this.flagArray[this.sel_y][this.sel_x] = true;
-		const m_flag = new Audio('./sound/flag.mp3');
-		m_flag.play();
-		this.updateHTML();
-		this.close_select();
+		this.emit('flagged');
+		this.redraw();
+		this.unselect();
 	}
 	unflag() {
 		this.flagArray[this.sel_y][this.sel_x] = false;
-		const m_unflag = new Audio('./sound/unflag.mp3');
-		m_unflag.volume = 0.3
-		m_unflag.play();
-		this.updateHTML();
-		this.close_select();
+		this.emit('unflagged');
+		this.redraw();
+		this.unselect();
 	}
 
-	cancel_select() {
-		const m_cancel = new Audio('./sound/cancel.mp3');
-		m_cancel.volume = 0.4;
-		m_cancel.play();
-		this.close_select();
+	cancelSelect() {
+		this.emit('selectCaneled');
+		this.unselect();
 	}
-	close_select() {
-		// this.remove_select_listeners();
-		this.getElmByCoord(this.sel_x, this.sel_y).classList.remove('selected');
+	unselect() {
+		getElmByCoord(this.sel_x, this.sel_y).classList.remove('selected');
 		sel.style.display = 'none';
 		sel_mask.style.display = 'none'
 		this.sel_x = -1;
 		this.sel_y = -1;
+		this.emit('unselected');
 	}
 
 	checkGame() {
@@ -342,23 +332,13 @@ export class Game {
 	}
 	
 	gameClear() {
-		const m_clear = new Audio('./sound/win.mp3');
-		m_clear.play();
-		alert('wwww');
-		this.restart();
+		this.emit('cleared');
+		alert('clear!');
 	}
 	
-	gameover() {
-		this.close_select();
-		const m_bomb = new Audio('./sound/bomb.mp3');
-		m_bomb.volume = 0.6;
-		m_bomb.addEventListener('ended', function() {
-			const m_tin = new Audio('./sound/tin.mp3');
-			m_tin.play();
-		})
-		m_bomb.play();
-	
-		this.restart();
+	gameFail() {
+		this.unselect();
+		this.emit('failed');
 	}
 
 	/* timer */
@@ -377,10 +357,49 @@ export class Game {
 		}, 1000);
 	}
 
-	/* utils */
 
-	getElmByCoord(x, y) {
-		return document.querySelector(`[data-x='${x}'][data-y='${y}']`);
+	/* Events */
+	onInit(listener) {
+		this.addEventListener('initialized', listener);
+	}
+	onGameStart(listener) {
+		this.addEventListener('started', listener);
+	}
+	onSelect(listener) {
+		this.addEventListener('selected', listener);
+	}
+	onCancelSelect(listener) {
+		this.addEventListener('selectCanceled', listener);
+	}
+	onUnselect(listener) {
+		this.addEventListener('unselected', listener);
+	}
+	onDig(listener) {
+		this.addEventListener('digged', listener);
+	}
+	onBigDig(listener) {
+		this.addEventListener('bigdigged', listener);
+	}
+	onFlag(listener) {
+		this.addEventListener('flagged', listener);
+	}
+	onUnflag(listener) {
+		this.addEventListener('unflagged', listener);
+	}
+	onRedraw(listener) {
+		this.addEventListener('redrew', listener);
+	}
+	onChange(listener) {
+		this.addEventListener('changed', listener);
+	}
+	onGameFail(listener) { // === bombed
+		this.addEventListener('failed', listener);
+	}
+	onGameClear(listener) {
+		this.addEventListener('cleared', listener);
+	}
+	onGameEnd(listener) {
+		this.addEventListener('ended', listener);
 	}
 
 
@@ -407,4 +426,9 @@ const shuffle = arr => {
 
 const flatten = data => {
 	return data.reduce((acm, e) => Array.isArray(e) ? acm.concat(flatten(e)) : acm.concat(e), []);
+}
+
+
+const getElmByCoord = (x, y) => {
+	return document.querySelector(`[data-x='${x}'][data-y='${y}']`);
 }

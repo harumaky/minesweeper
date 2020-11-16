@@ -10,7 +10,13 @@
 	<meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
-	<div class="screen">
+	<div id="loading_wrap" class="loading_wrap">
+		<div class="loading">
+			<img src="./img/loading.gif" alt="loading..." class="loading_img">
+			<p class="loading_text">Loading...</p>
+		</div>
+	</div>
+	<div class="screen" id="screen">
 		<div class="lobby" id="lobby">
 			<h1>Super Duper Minesweeper!</h1>
 			<form id="gameForm">
@@ -55,11 +61,14 @@
 							</div>
 						</div>
 						<div class="col-5 col-sm-3">
-							<div class="sound d-inline-block">
-								<div id="h_sound" class="off"></div>
+							<div class="sound_btns d-inline-block">
+								<!-- ミュートアイコンをクリックすると許可 -->
+								<button id="allow_sound" class="sound_btn btn_reset"></button>
+								<!-- サウンドアイコンをクリックすると禁止 -->
+								<button id="forbit_sound" class="d-none sound_btn btn_reset d-none"></button>
 							</div>
 							<div class="back d-inline-block">
-								<div id="h_back" class="back"></div>
+								<button id="h_back" class="back btn_reset"></button>
 							</div>
 							
 						</div>
@@ -81,7 +90,9 @@
 		</div>
 	</div>
 
-
-	<script src="app.js" type="module"></script>
+	<script>
+		document.querySelector(".screen").style.height = window.innerHeight + 'px';
+	</script>
+	<script src="./js/App.js" type="module"></script>
 </body>
 </html>

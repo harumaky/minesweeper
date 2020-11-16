@@ -1,6 +1,53 @@
+.btn_reset {
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+	outline: none;
+	padding: 0;
+	appearance: none;
+}
+
+.loading_wrap {
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 100;
+	top: 0; left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(255,255,255,1);
+	transition: all 0.6s;
+}
+.loading_wrap.slideout {
+	top: -100%;
+}
+.loading {
+	width: 200px;
+	height: 200px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+}
+.loading_img {
+	display: inline-block;
+	width: 50px;
+}
+.loading_text {
+	width: 100%;
+	text-align: center;
+	animation: blinking 1s infinite ease-in-out;
+}
+@keyframes blinking {
+	0% {opacity: 1;}
+	50% {opacity: 0;}
+	100% {opacity: 1;}
+}
+
 .screen {
 	width: 100%;
-	height: 100vh;
+	/* height decided by js */
 	background: #eee;
 	background-image: url("./img/top_back.png");
 	background-repeat: no-repeat;
@@ -107,21 +154,23 @@ input.warn {
 .time {
 	min-width: 100px;
 }
-#h_sound {
+
+.sound_btn {
 	background-size: contain;
 	width: 50px;
 	height: 50px;
 	background-repeat: no-repeat;
 }
-#h_sound:hover {
+.sound_btn:hover {
 	opacity: 0.6;
 }
-#h_sound.on {
+#allow_sound {
 	background-image: url('./img/sound_off.svg');
 }
-#h_sound.off {
+#forbit_sound {
 	background-image: url('./img/sound_on.svg');
 }
+
 .back {
 	width: 50px;
 	height: 50px;
