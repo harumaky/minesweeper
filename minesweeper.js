@@ -31,6 +31,7 @@ export class Game {
 		this.elm.sel_unflag.addEventListener('click', this.unflag.bind(this));
 		this.elm.sel_flag.addEventListener('click', this.flag.bind(this));
 		this.elm.sel_dig.addEventListener('click', this.dig.bind(this));
+		this.elm.h_back.addEventListener('click', this.restart.bind(this));
 
 		this.createFirstHTML();
 	}
@@ -76,23 +77,50 @@ export class Game {
 	createBoard(init_x, init_y) {
 		// 1D array -> shuffle -> 2D array (boardArray)
 		// true -> bomb! false -> valid
-		const bombsArray = Array(this.bombAmount).fill(true);
-		const emptyArray = Array(this.width*this.height - this.bombAmount).fill(false);
+		const init_idx = this.width * init_y + init_x;
+		const noLeft = init_idx % this.width === 0;
+		const noRight = (init_idx + 1) % this.width === 0;
+		const xEdge = noLeft || noRight;
+		const noAbove = init_idx < this.width;
+		const noBelow = this.height*this.width - init_idx <= this.width;
+		const yEdge = noAbove || noBelow; 
+		let safe_amount = 9;
+		if (xEdge) safe_amount-= 3;
+		if (yEdge) safe_amount-= 3;
+		if (xEdge && yEdge) safe_amount++;
 
-		let oneD_init_idx = this.width * init_y + init_x;
+		const bombsArray = Array(this.bombAmount).fill(true);
+		const emptyArray = Array(this.width*this.height - this.bombAmount - safe_amount).fill(false);
+		
 		let oneD_Array = emptyArray.concat(bombsArray);
-		// until the init point is not bomb
-		do {
-			oneD_Array = oneD_Array.sort(() => Math.random() - 0.5);
-		} while (oneD_Array[oneD_init_idx])
+		oneD_Array = shuffle(oneD_Array);
 		
 		// init boradArray and statusArrays, then apply them into HTML
 		for (let y = 0; y < this.height; y++) {
-			let oneD_startIdx = y * this.width;
-			this.boardArray[y] = oneD_Array.slice(oneD_startIdx, oneD_startIdx+this.width);
+			this.boardArray[y] = Array(this.width).fill(false);
 			this.flagArray[y] = Array(this.width).fill(false);
 			this.diggedArray[y] = Array(this.width).fill(false);
 			this.numsArray[y] = Array(this.width).fill(9);
+			for (let x = 0; x < this.width; x++) {
+				let oneD_idx = this.width * y + x;
+				if (
+					oneD_idx === init_idx ||
+					(!noLeft && oneD_idx === init_idx - 1) ||
+					(!noRight && oneD_idx === init_idx + 1) ||
+					(!noAbove && oneD_idx === init_idx - this.width) ||
+					(!noBelow && oneD_idx === init_idx + this.width) ||
+					(!noLeft && !noAbove && oneD_idx === init_idx - this.width - 1) ||
+					(!noRight && !noAbove && oneD_idx === init_idx - this.width + 1) ||
+					(!noLeft && !noBelow && oneD_idx === init_idx + this.width - 1) ||
+					(!noRight && !noBelow && oneD_idx === init_idx + this.width + 1)
+					) 
+				{
+					this.boardArray[y][x] = false;
+					continue;
+				}
+				this.boardArray[y][x] = oneD_Array[oneD_idx];
+			}
+
 		}
 		// if around the init point is bomb, flip it
 		// !!!!!
@@ -111,7 +139,6 @@ export class Game {
 		this.sel_x = init_x, this.sel_y = init_y;
 		this.setNums();
 		this.dig();
-
 
 		this.startTime = Date.now();
 		this.elapsed = 0;
@@ -167,7 +194,7 @@ export class Game {
 				id++;
 			}
 		}
-		const flag_reminder = this.bombAmount - this.flatten(this.flagArray).filter(e => e).length;
+		const flag_reminder = this.bombAmount - flatten(this.flagArray).filter(e => e).length;
 		this.elm.h_flags.textContent = flag_reminder;
 		this.showJSArrays();
 	}
@@ -309,7 +336,7 @@ export class Game {
 	}
 
 	checkGame() {
-		const digged_amount = this.flatten(this.diggedArray).filter(e => e).length;
+		const digged_amount = flatten(this.diggedArray).filter(e => e).length;
 		console.log(digged_amount);
 		if (digged_amount === this.width*this.height - this.bombAmount) this.gameClear();
 	}
@@ -356,10 +383,6 @@ export class Game {
 		return document.querySelector(`[data-x='${x}'][data-y='${y}']`);
 	}
 
-	flatten(data) {
-		return data.reduce((acm, e) => Array.isArray(e) ? acm.concat(this.flatten(e)) : acm.concat(e), []);
-	}
-
 
 	showJSArrays() {
 		console.log("board");
@@ -372,4 +395,16 @@ export class Game {
 		console.log(this.numsArray);
 	}
 	
+}
+
+const shuffle = arr => {
+	for (let i = arr.length - 1; i >= 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[arr[i], arr[j]] = [arr[j], arr[i]];
+	}
+	return arr;
+}
+
+const flatten = data => {
+	return data.reduce((acm, e) => Array.isArray(e) ? acm.concat(flatten(e)) : acm.concat(e), []);
 }
