@@ -30,3 +30,17 @@ export function getDOM(id) {
 	}
 	return elm;
 }
+
+export function shuffle(arr) {
+	for (let i = arr.length - 1; i >= 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[arr[i], arr[j]] = [arr[j], arr[i]];
+	}
+	return arr;
+}
+export function flatten(data) {
+	return data.reduce((acm, e) => Array.isArray(e) ? acm.concat(flatten(e)) : acm.concat(e), []);
+}
+export function getElmByCoord(x, y) {
+	return document.querySelector(`[data-x='${x}'][data-y='${y}']`);
+}

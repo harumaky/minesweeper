@@ -1,6 +1,7 @@
 'use strict';
 import { Minesweeper } from './minesweeper.js';
 import { SEHandler } from './SEHandler.js';
+import { gamehandler } from './GameHandler.js';
 import { SDF, getDOM } from './utils.js';
 
 let minesweeper;
@@ -27,12 +28,11 @@ SDF('forbit_sound', 'click', function() {
 	getDOM('allow_sound').classList.remove('d-none');
 })
 
-
 const gameForm = getDOM('gameForm');
 const f_width = getDOM('conf_width');
 const f_height = getDOM('conf_height');
 const f_bomb = getDOM('conf_bomb');
-const f_int_inputs = [f_width, f_height, f_bomb];
+const f_size_inputs = [f_width, f_height];
 
 SDF(gameForm, 'change', gameFormValidation);
 SDF(gameForm, 'submit', function(e) {
@@ -48,11 +48,32 @@ SDF(gameForm, 'submit', function(e) {
 	}
 });
 
+function initiate(width, height, bomb) {
+	// decide #gamefield size
+	// client window size (c_)
+	const c_width = window.innerWidth;
+	const c_height = window.innerHeight - 50; // 30px for header
+	const field = document.getElementById('gamefield');
+
+	let squareSize = Math.min(Math.floor(c_width/width), Math.floor(c_height/height));
+
+	field.style.width = squareSize * width + 'px';
+	field.style.height = squareSize * height + 50 + 'px';
+
+	minesweeper = new Minesweeper(width, height, bomb, squareSize);
+	minesweeper.onInit(function() {
+		gamehandler(this, SE);
+	})
+	minesweeper.init();
+
+	const gameWrap = document.getElementById('gamewrap');
+	gameWrap.style.display = 'flex';
+}
+
 function gameFormValidation() {
 	let ok = true;
-	f_int_inputs.forEach(input => {
+	f_size_inputs.forEach(input => {
 		let val = parseInt(input.value);
-		console.log(val);
 		if (!val || val < 6 || val > 50) {
 			input.classList.add('warn');
 			ok = false;
@@ -72,78 +93,7 @@ function gameFormValidation() {
 function isBombAmoutOk() {
 	const size = parseInt(f_width.value) * parseInt(f_height.value);
 	const bomb_amout = parseInt(f_bomb.value);
+	if (!bomb_amout) return false;
 	if (Math.round(size*0.8) < bomb_amout) return false;
 	return true;
-}
-
-function initiate(width, height, bomb) {
-	// decide #gamefield size
-	// client window size (c_)
-	const c_width = window.innerWidth;
-	const c_height = window.innerHeight - 50; // 30px for header
-	const field = document.getElementById('gamefield');
-
-	let squareSize = Math.min(Math.floor(c_width/width), Math.floor(c_height/height));
-
-	field.style.width = squareSize * width + 'px';
-	field.style.height = squareSize * height + 50 + 'px';
-
-	const init_elm_ids = ['grid', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time'];
-	// const const_elms = const_elm_ids.map(e => document.getElementById(e));
-	let init_elms = {};
-	for (let i = 0; i < init_elm_ids.length; i++) {
-		init_elms[init_elm_ids[i]] = document.getElementById(init_elm_ids[i]);
-	}
-
-	minesweeper = new Minesweeper(init_elms, width, height, bomb, squareSize);
-	minesweeper.onInit(minesweeperHandler)
-	minesweeper.init();
-
-	const gameWrap = document.getElementById('gamewrap');
-	gameWrap.style.display = 'flex';
-}
-
-
-function minesweeperHandler() {
-	minesweeper.onGameStart(function() {
-
-	});
-	minesweeper.onSelect(function() {
-		SE.play('select');
-	});
-	minesweeper.onCancelSelect(function() {
-		SE.play('cancel');
-	});
-	minesweeper.onUnselect(function() {
-
-	});
-	minesweeper.onDig(function() {
-		SE.play('dig');
-	});
-	minesweeper.onBigDig(function() {
-		SE.play('bigdig');
-	});
-	minesweeper.onFlag(function() {
-		SE.play('flag');
-	});
-	minesweeper.onUnflag(function() {
-		SE.play('unflag');
-	});
-	minesweeper.onRedraw(function() {
-
-	});
-	minesweeper.onChange(function() {
-
-	});
-	minesweeper.onGameFail(function() {
-		SE.play('bomb');
-		SE.play('tin');
-	});
-	minesweeper.onGameClear(function() {
-		SE.play('win');
-	});
-	minesweeper.onGameEnd(function() {
-
-	});
-
 }

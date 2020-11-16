@@ -1,5 +1,12 @@
 'use strict';
 import { EventEmitter } from './EventEmitter.js';
+import { shuffle, flatten, getElmByCoord } from './utils.js';
+
+const elm_ids = ['grid', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time'];
+let elms = {};
+for (let i = 0; i < elm_ids.length; i++) {
+	elms[elm_ids[i]] = document.getElementById(elm_ids[i]);
+}
 
 export class Minesweeper extends EventEmitter {
 	/**
@@ -8,9 +15,9 @@ export class Minesweeper extends EventEmitter {
 	 * @param {Number} height 
 	 * @param {Number} bombAmount 
 	 */
-	constructor(elms, width, height, bombAmount, squareSize) {
+	constructor(width, height, bombAmount, squareSize) {
 		super();
-		this.elm = elms;
+		elms = elms;
 		this.width = width;
 		this.height = height;
 		this.bombAmount = bombAmount;
@@ -27,11 +34,11 @@ export class Minesweeper extends EventEmitter {
 		this.isFirst = true; // はじめの一回終わったらfalseに
 		this.sel_x = -1;
 		this.sel_y = -1;
-		this.elm.sel_mask.addEventListener('click', this.cancelSelect.bind(this));
-		this.elm.sel_cancel.addEventListener('click', this.cancelSelect.bind(this));
-		this.elm.sel_unflag.addEventListener('click', this.unflag.bind(this));
-		this.elm.sel_flag.addEventListener('click', this.flag.bind(this));
-		this.elm.sel_dig.addEventListener('click', this.dig.bind(this));
+		elms.sel_mask.addEventListener('click', this.cancelSelect.bind(this));
+		elms.sel_cancel.addEventListener('click', this.cancelSelect.bind(this));
+		elms.sel_unflag.addEventListener('click', this.unflag.bind(this));
+		elms.sel_flag.addEventListener('click', this.flag.bind(this));
+		elms.sel_dig.addEventListener('click', this.dig.bind(this));
 
 		// Create first HTML
 		let id = 0;
@@ -53,11 +60,11 @@ export class Minesweeper extends EventEmitter {
 				square.setAttribute('id', id);
 	
 				square.addEventListener('click', this.click.bind(this));
-				this.elm.grid.appendChild(square);
+				elms.grid.appendChild(square);
 				id++;
 			}
 		}
-		this.elm.h_flags.textContent = this.bombAmount;
+		elms.h_flags.textContent = this.bombAmount;
 		this.emit('initialized');
 	}
 
@@ -175,6 +182,7 @@ export class Minesweeper extends EventEmitter {
 	}
 
 	redraw() {
+		this.emit('changed');
 		let id = 0;
 		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
@@ -189,7 +197,7 @@ export class Minesweeper extends EventEmitter {
 			}
 		}
 		const flag_reminder = this.bombAmount - flatten(this.flagArray).filter(e => e).length;
-		this.elm.h_flags.textContent = flag_reminder;
+		elms.h_flags.textContent = flag_reminder;
 		this.emit('redrew');
 	}
 
@@ -212,21 +220,21 @@ export class Minesweeper extends EventEmitter {
 		this.sel_y = y;
 		getElmByCoord(x, y).classList.add('selected');
 	
-		this.elm.sel_mask.style.display = 'block';
-		this.elm.sel.style.display = 'block';
+		elms.sel_mask.style.display = 'block';
+		elms.sel.style.display = 'block';
 		
 		// show all options and set all listeners first
-		this.elm.sel_unflag.style.display = 'block';
-		this.elm.sel_flag.style.display = 'block';
-		this.elm.sel_dig.style.display = 'block';
+		elms.sel_unflag.style.display = 'block';
+		elms.sel_flag.style.display = 'block';
+		elms.sel_dig.style.display = 'block';
 	
 		if (this.flagArray[y][x]) {
 			// if flaged, hide flag and dig btn
-			this.elm.sel_flag.style.display = 'none';
-			this.elm.sel_dig.style.display = 'none';
+			elms.sel_flag.style.display = 'none';
+			elms.sel_dig.style.display = 'none';
 		} else {
 			// if not flagged, hide unflag btn
-			this.elm.sel_unflag.style.display = 'none';
+			elms.sel_unflag.style.display = 'none';
 		}
 
 		this.emit('selected');
@@ -333,7 +341,7 @@ export class Minesweeper extends EventEmitter {
 	
 	gameClear() {
 		this.emit('cleared');
-		alert('clear!');
+		console.log('clear!');
 	}
 	
 	gameFail() {
@@ -351,7 +359,7 @@ export class Minesweeper extends EventEmitter {
 			min = ('0' + min).slice(-2);
 			sec = ('0' + sec).slice(-2);
 			
-			self.elm.h_time.textContent = `${min}:${sec}`;
+			elm.h_time.textContent = `${min}:${sec}`;
 
 			self.timer_count();
 		}, 1000);
@@ -414,21 +422,4 @@ export class Minesweeper extends EventEmitter {
 		console.log(this.numsArray);
 	}
 	
-}
-
-const shuffle = arr => {
-	for (let i = arr.length - 1; i >= 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		[arr[i], arr[j]] = [arr[j], arr[i]];
-	}
-	return arr;
-}
-
-const flatten = data => {
-	return data.reduce((acm, e) => Array.isArray(e) ? acm.concat(flatten(e)) : acm.concat(e), []);
-}
-
-
-const getElmByCoord = (x, y) => {
-	return document.querySelector(`[data-x='${x}'][data-y='${y}']`);
 }
