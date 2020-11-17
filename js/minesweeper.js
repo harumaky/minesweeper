@@ -32,6 +32,7 @@ export class Minesweeper extends EventEmitter {
 		this.numsArray = []; // shows the amount of bombs around it
 
 		this.isFirst = true; // はじめの一回終わったらfalseに
+		this.status = "ongame";
 		this.sel_x = -1;
 		this.sel_y = -1;
 		elms.sel_mask.addEventListener('click', this.cancelSelect.bind(this));
@@ -277,7 +278,7 @@ export class Minesweeper extends EventEmitter {
 	
 	dig() {
 		if (this.boardArray[this.sel_y][this.sel_x]) {
-			this.gameFail();
+			this.gameEnd('fail')
 			return;
 		}
 
@@ -287,27 +288,29 @@ export class Minesweeper extends EventEmitter {
 		this.checkGame();
 	
 		// digAroundIfPossible
-		if (this.numsArray[this.sel_y][this.sel_x] === 0) {
+		let bigdigPossible = this.numsArray[this.sel_y][this.sel_x] === 0;
+		if (bigdigPossible) {
 			// only possible when there's no flag around it
 			let x = this.sel_x;
 			let y = this.sel_y;
-			let possible = true;
 			if (y > 0) {
-				if (this.flagArray[y-1][x-1] || this.flagArray[y-1][x] || this.flagArray[y-1][x]) possible = false;
+				if (this.flagArray[y-1][x-1] || this.flagArray[y-1][x] || this.flagArray[y-1][x]) bigdigPossible = false;
 			}
-			if (this.flagArray[y][x-1] || this.flagArray[y][x+1]) possible = false;
+			if (this.flagArray[y][x-1] || this.flagArray[y][x+1]) bigdigPossible = false;
 			if (y < this.height-1) {
-				if (this.flagArray[y+1][x-1] || this.flagArray[y+1][x] || this.flagArray[y+1][x+1]) possible = false;
+				if (this.flagArray[y+1][x-1] || this.flagArray[y+1][x] || this.flagArray[y+1][x+1]) bigdigPossible = false;
 			}
-			if (possible) {
+			if (bigdigPossible) {
+				this.emit('bigdiged');
 				this.digAround(x, y);
-				this.emit('bigdigged');
 			}
 		}
+	
 		this.unselect();
 	}
 
-	digAround(x, y) {	
+	digAround(x, y) {
+		if (this.status === "ended") return;
 		setTimeout(() => {
 			this.loopIfPossible(x-1, y-1);
 			this.loopIfPossible(x, y-1);
@@ -332,7 +335,8 @@ export class Minesweeper extends EventEmitter {
 			}
 			this.redraw();
 			this.checkGame();
-		}, 50);
+		}, 10);
+		
 	}
 
 	loopIfPossible(x, y) {
@@ -369,14 +373,28 @@ export class Minesweeper extends EventEmitter {
 	}
 
 	checkGame() {
+		if (this.status === 'ended') return
 		const digged_amount = flatten(this.diggedArray).filter(e => e).length;
-		console.log(digged_amount);
-		if (digged_amount === this.width*this.height - this.bombAmount) this.gameClear();
+		if (digged_amount === this.width*this.height - this.bombAmount) {
+			this.gameEnd('clear')
+		}
+	}
+
+	gameEnd(result) {
+		this.emit('ended');
+		clearTimeout(this.timerId);
+
+		if (result === 'clear') {
+			this.gameClear();
+		} else if (result === 'fail') {
+			this.gameFail();
+		} else {
+			return;
+		}
 	}
 	
 	gameClear() {
 		this.emit('cleared');
-		console.log('clear!');
 	}
 	
 	gameFail() {
@@ -400,6 +418,11 @@ export class Minesweeper extends EventEmitter {
 		}, 1000);
 	}
 
+	exit() {
+		this.gameEnd('exited')
+		this.emit('exited')
+	}
+
 
 	/* Events */
 	onInit(listener) {
@@ -420,8 +443,8 @@ export class Minesweeper extends EventEmitter {
 	onDig(listener) {
 		this.addEventListener('digged', listener);
 	}
-	onBigDig(listener) {
-		this.addEventListener('bigdigged', listener);
+	onBigdig(listener) {
+		this.addEventListener('bigdiged', listener);
 	}
 	onFlag(listener) {
 		this.addEventListener('flagged', listener);
@@ -435,14 +458,17 @@ export class Minesweeper extends EventEmitter {
 	onChange(listener) {
 		this.addEventListener('changed', listener);
 	}
+	onGameEnd(listener) {
+		this.addEventListener('ended', listener);
+	}
 	onGameFail(listener) { // === bombed
 		this.addEventListener('failed', listener);
 	}
 	onGameClear(listener) {
 		this.addEventListener('cleared', listener);
 	}
-	onGameEnd(listener) {
-		this.addEventListener('ended', listener);
+	onExit(listener) {
+		this.addEventListener('exited', listener);
 	}
 
 

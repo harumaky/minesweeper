@@ -6,7 +6,7 @@
 	<title>マインスイーパー</title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 	<link rel="stylesheet" href="style.css">
-	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="./img/favicon-16x16.png">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
@@ -19,7 +19,7 @@
 	</div>
 
 	<div class="screen" id="screen">
-		<div class="lobby" id="lobby">
+		<div class="lobby active" id="lobby">
 			<h1 class="title">Super Duper Minesweeper!</h1>
 			<form id="gameForm" class="p-3">
 				<div class="form-group">
@@ -60,14 +60,12 @@
 							<div id="h_time" class="board_head_time">00:00</div>
 						</div>
 
-						<div class="board_head_sound_btns d-inline-block">
-							<!-- ミュートアイコンをクリックすると許可 -->
+						<div class="board_head_sound_btns">
 							<button id="allow_sound" class="sound_btn btn_reset"></button>
-							<!-- サウンドアイコンをクリックすると禁止 -->
 							<button id="forbit_sound" class="d-none sound_btn btn_reset d-none"></button>
 						</div>
-						<div class="board_head_menu_btn_outer d-inline-block">
-							<button id="open_menu" class="board_head_menu_btn btn_reset"></button>
+						<div class="board_head_menu_btn_outer" id="open_menu_outer">
+							<button id="open_menu_btn" class="board_head_menu_btn btn_reset"></button>
 						</div>
 					</div>
 					
@@ -84,7 +82,21 @@
 			</div>
 
 			<div class="menu p-3" id="menu">
-				<h2>menu here</h2>
+				<button id="close_menu_btn" class="close_menu_btn btn_reset">とじる</button>
+				<button class="btn_reset quit_btn" id="exit_btn"><span>Exit Game</span></button>
+				<div>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+				</div>
 			</div>
 		</div>
 	</div>

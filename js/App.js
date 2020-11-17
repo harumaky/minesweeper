@@ -2,42 +2,27 @@
 import { Minesweeper } from './minesweeper.js';
 import { SEHandler } from './SEHandler.js';
 import { gamehandler } from './GameHandler.js';
-import { SDF, getDOM } from './utils.js';
+import { SDF, getDOM, wait } from './utils.js';
 
 let minesweeper;
-
-function loadCompleted() {
-	document.getElementById('loading_wrap').classList.add('slideout')
-}
-
-
-const SE = new SEHandler();
-SE.load();
-SE.onLoadCompleted(function() {
-	console.log(`All sound effects loaded in ${new Date() - SE.initTime}ms`);
-	loadCompleted();
-})
-
-SDF('allow_sound', 'click', function() { 
-	SE.allowed = true;
-	this.classList.add('d-none');
-	getDOM('forbit_sound').classList.remove('d-none');
-})
-SDF('forbit_sound', 'click', function() {
-	SE.allowed = false;
-	this.classList.add('d-none');
-	getDOM('allow_sound').classList.remove('d-none');
-})
-
+let type; // layouttype
+const screen = getDOM('screen');
+const lobby = getDOM('lobby');
 const gameForm = getDOM('gameForm');
 const f_width = getDOM('conf_width');
 const f_height = getDOM('conf_height');
 const f_bomb = getDOM('conf_bomb');
 const f_size_inputs = [f_width, f_height];
 
-f_width.value = localStorage.getItem('last_game_width') || 8
-f_height.value = localStorage.getItem('last_game_height') || 10
-f_bomb.value = localStorage.getItem('last_game_bomb_amount') || 20
+const g_wrap = getDOM('gamewrap');
+const g_field = getDOM('gamefield');
+const b_wrap = getDOM('boardwrap');
+const board = getDOM('board');
+const menu = getDOM('menu');
+
+f_width.value = localStorage.getItem('last_game_width') || 8;
+f_height.value = localStorage.getItem('last_game_height') || 10;
+f_bomb.value = localStorage.getItem('last_game_bomb_amount') || 20;
 
 SDF(gameForm, 'change', gameFormValidation);
 SDF(gameForm, 'submit', function(e) {
@@ -53,26 +38,40 @@ SDF(gameForm, 'submit', function(e) {
 	}
 });
 
-function initiate(width, height, bomb) {
+function loadCompleted() {
+	document.getElementById('loading_wrap').classList.add('slideout')
+}
+const SE = new SEHandler();
+SE.load();
+SE.onLoadCompleted(function() {
+	console.log(`All sound effects loaded in ${new Date() - SE.initTime}ms`);
+	loadCompleted();
+})
+SDF('allow_sound', 'click', function() { 
+	SE.allowed = true;
+	this.classList.add('d-none');
+	getDOM('forbit_sound').classList.remove('d-none');
+})
+SDF('forbit_sound', 'click', function() {
+	SE.allowed = false;
+	this.classList.add('d-none');
+	getDOM('allow_sound').classList.remove('d-none');
+})
+
+
+async function initiate(width, height, bomb) {
 	// decide #gamefield size
 	// client window size (c_) = #screen's height, not window.height
-	const screen = getDOM('screen');
-
+	lobby.classList.remove('active')
+	await wait(1000)
 	const c_width = screen.clientWidth;
 	const c_height = screen.clientHeight;
 
 	console.log(`screen width: ${c_width}, height: ${c_height}`);
 
-	const g_wrap = getDOM('gamewrap');
-	const g_field = getDOM('gamefield');
-	const b_wrap = getDOM('boardwrap');
-	const board = getDOM('board');
-	const menu = getDOM('menu');
-
-	let type;
 	if (c_width < c_height && c_width < 1024) {
 		type = "A";
-		if (width > height) {
+		if (c_width < 1024 && width > height) {
 			alert('レイアウト調整のため指定した幅と高さが反転します');
 			[width, height] = [height, width];
 		}
@@ -95,7 +94,7 @@ function initiate(width, height, bomb) {
 	board.classList.add(`type_${type}`);
 	menu.classList.add(`type_${type}`);
 
-	g_wrap.style.display = 'flex';
+	g_wrap.classList.add('active');
 
 	const f_width = g_field.clientWidth;
 	const f_height = g_field.clientHeight;
@@ -116,6 +115,7 @@ function initiate(width, height, bomb) {
 		gamehandler(this, SE);
 	})
 	minesweeper.init();
+
 }
 
 function gameFormValidation() {
@@ -141,7 +141,34 @@ function gameFormValidation() {
 function isBombAmoutOk() {
 	const size = parseInt(f_width.value) * parseInt(f_height.value);
 	const bomb_amout = parseInt(f_bomb.value);
-	if (!bomb_amout) return false;
-	if (Math.round(size*0.8) < bomb_amout) return false;
+	const max = Math.round(size*0.8);
+	const min = 1;
+	if (!bomb_amout || max < bomb_amout || min > bomb_amout) return false;
 	return true;
+}
+
+SDF('open_menu_btn', 'click', function() {
+	menu.classList.add('active')
+})
+SDF('close_menu_btn', 'click', function() {
+	menu.classList.remove('active')
+})
+
+SDF('exit_btn', 'click', reset)
+
+function reset() {
+	minesweeper.exit();
+	location.reload();
+	// g_wrap.classList.remove('active');
+	// lobby.classList.add('active');
+	// while(board.firstChild) {
+	// 	board.removeChild(board.firstChild);
+	// }
+	// g_wrap.classList.remove(`type_${type}`);
+	// g_field.classList.remove(`type_${type}`);
+	// b_wrap.classList.remove(`type_${type}`);
+	// board.classList.remove(`type_${type}`);
+	// menu.classList.remove(`type_${type}`);
+
+
 }

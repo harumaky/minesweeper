@@ -1,5 +1,24 @@
 'use strict';
 
+/**
+ * wait
+ * @param {Number} ms 
+ * @example 
+ * 
+ * wait(100).then(() => {hoge})
+ * or
+ * in async func,
+ * await wait(100)
+ * hoge
+ */
+export function wait(ms) {
+	return new Promise(resolve => {
+		setTimeout(() => {
+			resolve();
+		}, ms);
+	});
+}
+
 
 /**
  * Set Dom Function

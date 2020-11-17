@@ -16,7 +16,8 @@ export function gamehandler(minesweeper, SE) {
 	minesweeper.onDig(function() {
 		SE.play('dig');
 	});
-	minesweeper.onBigDig(function() {
+	minesweeper.onBigdig(function() {
+		console.log("BIGDIG STAETED");
 		SE.play('bigdig');
 	});
 	minesweeper.onFlag(function() {
@@ -31,6 +32,10 @@ export function gamehandler(minesweeper, SE) {
 	minesweeper.onChange(function() {
 
 	});
+	minesweeper.onGameEnd(function() {
+		minesweeper.status = "ended";
+		console.log("game ended");
+	});
 	minesweeper.onGameFail(function() {
 		SE.play('bomb');
 		SE.play('tin');
@@ -38,7 +43,7 @@ export function gamehandler(minesweeper, SE) {
 	minesweeper.onGameClear(function() {
 		SE.play('win');
 	});
-	minesweeper.onGameEnd(function() {
-
+	minesweeper.onExit(function() {
+		console.log("exited");
 	});
 }
