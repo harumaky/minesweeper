@@ -326,9 +326,11 @@ input.warn {
 	background: #b7e261;
 }
 
+/*
 .square.bomb {
 	background: darkorange;
 }
+*/
 
 .square.digged {
 	font-weight: bold;
