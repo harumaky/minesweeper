@@ -1,8 +1,8 @@
 'use strict';
 import { EventEmitter } from './EventEmitter.js';
-import { shuffle, flatten, getElmByCoord } from './utils.js';
+import { shuffle, flatten, getElmByCoord, setStyleSquare, setTopLeft} from './utils.js';
 
-const elm_ids = ['grid', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time'];
+const elm_ids = ['board', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time'];
 let elms = {};
 for (let i = 0; i < elm_ids.length; i++) {
 	elms[elm_ids[i]] = document.getElementById(elm_ids[i]);
@@ -60,11 +60,17 @@ export class Minesweeper extends EventEmitter {
 				square.setAttribute('id', id);
 	
 				square.addEventListener('click', this.click.bind(this));
-				elms.grid.appendChild(square);
+				elms.board.appendChild(square);
 				id++;
 			}
 		}
 		elms.h_flags.textContent = this.bombAmount;
+
+		setStyleSquare(elms.sel_cancel, Math.round(this.squareSize * 0.8));
+		setStyleSquare(elms.sel_dig, Math.round(this.squareSize * 1.2));
+		setStyleSquare(elms.sel_flag, Math.round(this.squareSize * 1.2));
+		setStyleSquare(elms.sel_unflag, Math.round(this.squareSize * 1.2));
+
 		this.emit('initialized');
 	}
 
@@ -212,22 +218,51 @@ export class Minesweeper extends EventEmitter {
 		// 掘れる場所が確定して、一気にやる機能はスキップ
 		if (this.diggedArray[y][x]) return;
 
-		this.select(e, x, y);
+		this.select(x, y);
 	}
 
-	select(e, x, y) {
+	select(x, y) {
 		this.sel_x = x;
 		this.sel_y = y;
-		getElmByCoord(x, y).classList.add('selected');
-	
+
+		const square = getElmByCoord(x, y);
+		square.classList.add('selected');
+		const base = square.getBoundingClientRect();
+		const size = this.squareSize;
+
 		elms.sel_mask.style.display = 'block';
 		elms.sel.style.display = 'block';
-		
+				
 		// show all options and set all listeners first
 		elms.sel_unflag.style.display = 'block';
 		elms.sel_flag.style.display = 'block';
 		elms.sel_dig.style.display = 'block';
-	
+
+		setTopLeft(elms.sel_cancel, base.top - size, base.left - size)
+		setTopLeft(elms.sel_dig, base.top - size, base.left)
+		setTopLeft(elms.sel_flag, base.top, base.left - size);
+		setTopLeft(elms.sel_unflag, base.top, base.left - size);
+
+		const isLeft = x === 0 || x === 1;
+		const isTop = y === 0 || y === 1;
+
+		if (isTop && isLeft) {
+			setTopLeft(elms.sel_cancel, base.top + size*1.3, base.left + size*1.3)
+			setTopLeft(elms.sel_dig, base.top + size*1.2, base.left)
+			setTopLeft(elms.sel_flag, base.top, base.left + size*1.2);
+			setTopLeft(elms.sel_unflag, base.top, base.left + size*1.2);
+		} else if (isTop) {
+			setTopLeft(elms.sel_cancel, base.top + size*1.3, base.left - size)
+			setTopLeft(elms.sel_dig, base.top + size*1.2, base.left)
+			setTopLeft(elms.sel_flag, base.top, base.left - size);
+			setTopLeft(elms.sel_unflag, base.top, base.left- size);
+		} else if (isLeft) {
+			setTopLeft(elms.sel_cancel, base.top - size, base.left + size*1.3)
+			setTopLeft(elms.sel_dig, base.top - size, base.left)
+			setTopLeft(elms.sel_flag, base.top, base.left + size*1.2);
+			setTopLeft(elms.sel_unflag, base.top, base.left + size*1.2);
+		}
+
 		if (this.flagArray[y][x]) {
 			// if flaged, hide flag and dig btn
 			elms.sel_flag.style.display = 'none';
@@ -238,7 +273,7 @@ export class Minesweeper extends EventEmitter {
 		}
 
 		this.emit('selected');
-	}	
+	}
 	
 	dig() {
 		if (this.boardArray[this.sel_y][this.sel_x]) {
@@ -359,7 +394,7 @@ export class Minesweeper extends EventEmitter {
 			min = ('0' + min).slice(-2);
 			sec = ('0' + sec).slice(-2);
 			
-			elm.h_time.textContent = `${min}:${sec}`;
+			elms.h_time.textContent = `${min}:${sec}`;
 
 			self.timer_count();
 		}, 1000);

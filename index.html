@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<title>マインスイーパー</title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 	<link rel="stylesheet" href="style.css">
@@ -10,16 +10,18 @@
 	<meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
+
 	<div id="loading_wrap" class="loading_wrap">
 		<div class="loading">
 			<img src="./img/loading.gif" alt="loading..." class="loading_img">
 			<p class="loading_text">Loading...</p>
 		</div>
 	</div>
+
 	<div class="screen" id="screen">
 		<div class="lobby" id="lobby">
-			<h1>Super Duper Minesweeper!</h1>
-			<form id="gameForm">
+			<h1 class="title">Super Duper Minesweeper!</h1>
+			<form id="gameForm" class="p-3">
 				<div class="form-group">
 					<div class="input-group">
 						<div class="input-group-prepend">
@@ -44,48 +46,45 @@
 			</form>
 		</div>
 
-		<div class="gamefield-wrap" id="gamewrap">
+		<div class="gamewrap" id="gamewrap">
 			<div class="gamefield" id="gamefield">
-				<div class="game-head">
-					<div class="row">
-						<div class="col-4 col-sm-3">
-							<div class="flags px-2">
-								<img src="./img/flag.png" alt="" class="img-fluid" width="30px">
-								<p id="h_flags" class="d-inline-block"></p>
-							</div>
+				
+				<div class="boardwrap" id="boardwrap">
+					<div class="board_head">
+						<div class="board_head_flags_outer">
+							<img src="./img/flag.png" alt="" class="board_head_flag_img" width="30px">
+							<p id="h_flags" class="d-inline-block"></p>
+						</div>
 
+						<div class="time board_head_time_outer">
+							<div id="h_time" class="board_head_time">00:00</div>
 						</div>
-						<div class="col-3 col-sm-6">
-							<div class="time">
-								<div id="h_time">00:00</div>
-							</div>
+
+						<div class="board_head_sound_btns d-inline-block">
+							<!-- ミュートアイコンをクリックすると許可 -->
+							<button id="allow_sound" class="sound_btn btn_reset"></button>
+							<!-- サウンドアイコンをクリックすると禁止 -->
+							<button id="forbit_sound" class="d-none sound_btn btn_reset d-none"></button>
 						</div>
-						<div class="col-5 col-sm-3">
-							<div class="sound_btns d-inline-block">
-								<!-- ミュートアイコンをクリックすると許可 -->
-								<button id="allow_sound" class="sound_btn btn_reset"></button>
-								<!-- サウンドアイコンをクリックすると禁止 -->
-								<button id="forbit_sound" class="d-none sound_btn btn_reset d-none"></button>
-							</div>
-							<div class="back d-inline-block">
-								<button id="h_back" class="back btn_reset"></button>
-							</div>
-							
+						<div class="board_head_menu_btn_outer d-inline-block">
+							<button id="open_menu" class="board_head_menu_btn btn_reset"></button>
 						</div>
 					</div>
 					
-				</div>
-				
-				<div class="grid" id="grid"></div>
-				<div class="sel_mask" id="sel_mask"></div>
-				<div class="sel" id="sel">
-					<div class="sel_inner">
-						<button id="sel_cancel">❌</button>
-						<button id="sel_unflag">🔓</button>
-						<button id="sel_flag">🚩</button>
-						<button id="sel_dig">⛏</button>
+					<div class="board" id="board"></div>
+					<div class="sel_mask" id="sel_mask"></div>
+					<div class="sel" id="sel">
+						<button id="sel_cancel" class="btn_reset"></button>
+						<button id="sel_unflag" class="btn_reset"></button>
+						<button id="sel_flag" class="btn_reset"></button>
+						<button id="sel_dig" class="btn_reset"></button>
 					</div>
 				</div>
+
+			</div>
+
+			<div class="menu p-3" id="menu">
+				<h2>menu here</h2>
 			</div>
 		</div>
 	</div>

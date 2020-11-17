@@ -10,6 +10,7 @@ function loadCompleted() {
 	document.getElementById('loading_wrap').classList.add('slideout')
 }
 
+
 const SE = new SEHandler();
 SE.load();
 SE.onLoadCompleted(function() {
@@ -34,6 +35,10 @@ const f_height = getDOM('conf_height');
 const f_bomb = getDOM('conf_bomb');
 const f_size_inputs = [f_width, f_height];
 
+f_width.value = localStorage.getItem('last_game_width') || 8
+f_height.value = localStorage.getItem('last_game_height') || 10
+f_bomb.value = localStorage.getItem('last_game_bomb_amount') || 20
+
 SDF(gameForm, 'change', gameFormValidation);
 SDF(gameForm, 'submit', function(e) {
 	e.preventDefault();
@@ -50,24 +55,67 @@ SDF(gameForm, 'submit', function(e) {
 
 function initiate(width, height, bomb) {
 	// decide #gamefield size
-	// client window size (c_)
-	const c_width = window.innerWidth;
-	const c_height = window.innerHeight - 50; // 30px for header
-	const field = document.getElementById('gamefield');
+	// client window size (c_) = #screen's height, not window.height
+	const screen = getDOM('screen');
 
-	let squareSize = Math.min(Math.floor(c_width/width), Math.floor(c_height/height));
+	const c_width = screen.clientWidth;
+	const c_height = screen.clientHeight;
 
-	field.style.width = squareSize * width + 'px';
-	field.style.height = squareSize * height + 50 + 'px';
+	console.log(`screen width: ${c_width}, height: ${c_height}`);
+
+	const g_wrap = getDOM('gamewrap');
+	const g_field = getDOM('gamefield');
+	const b_wrap = getDOM('boardwrap');
+	const board = getDOM('board');
+	const menu = getDOM('menu');
+
+	let type;
+	if (c_width < c_height && c_width < 1024) {
+		type = "A";
+		if (width > height) {
+			alert('レイアウト調整のため指定した幅と高さが反転します');
+			[width, height] = [height, width];
+		}
+	} else if (width > height) {
+		type = "B";
+	} else if (width <= height) {
+		type = "C";
+	} else {
+		type = undefined;
+	}
+
+	if (!type) {
+		alert('画面の条件が満たされていないため開始できませんでした');
+		return;
+	}
+
+	g_wrap.classList.add(`type_${type}`);
+	g_field.classList.add(`type_${type}`);
+	b_wrap.classList.add(`type_${type}`);
+	board.classList.add(`type_${type}`);
+	menu.classList.add(`type_${type}`);
+
+	g_wrap.style.display = 'flex';
+
+	const f_width = g_field.clientWidth;
+	const f_height = g_field.clientHeight;
+
+	const squareSize = Math.min(Math.floor(f_width/width), Math.floor((f_height-50)/height));
+
+	board.style.width = squareSize * width + 'px';
+	board.style.height = squareSize * height + 'px';
+	b_wrap.style.height = squareSize * height + 50 + 'px';
+
+	// store data in localstorage
+	localStorage.setItem('last_game_width', width);
+	localStorage.setItem('last_game_height', height);
+	localStorage.setItem('last_game_bomb_amount', bomb);
 
 	minesweeper = new Minesweeper(width, height, bomb, squareSize);
 	minesweeper.onInit(function() {
 		gamehandler(this, SE);
 	})
 	minesweeper.init();
-
-	const gameWrap = document.getElementById('gamewrap');
-	gameWrap.style.display = 'flex';
 }
 
 function gameFormValidation() {

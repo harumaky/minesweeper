@@ -44,3 +44,18 @@ export function flatten(data) {
 export function getElmByCoord(x, y) {
 	return document.querySelector(`[data-x='${x}'][data-y='${y}']`);
 }
+
+/**
+ * make DOM's width and height same size
+ * @param {DOMElement} elm 
+ * @param {Number} size 
+ */
+export function setStyleSquare(elm, size) {
+	elm.style.width = size + 'px';
+	elm.style.height = size + 'px';
+}
+
+export function setTopLeft(elm, top, left) {
+	elm.style.top = top + 'px';
+	elm.style.left = left + 'px';
+}
