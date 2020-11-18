@@ -1,31 +1,35 @@
 'use strict';
 import { EventEmitter } from './EventEmitter.js';
-import { shuffle, flatten, getElmByCoord, setStyleSquare, setTopLeft} from './utils.js';
+import { shuffle, flatten, getElmByCoord, setStyleSquare, setTopLeft, getDOM} from './utils.js';
 
-const elm_ids = ['board', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time'];
+const elm_ids = ['g_wrap', 'g_field', 'board', 'b_wrap', 'menu', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time'];
 let elms = {};
 for (let i = 0; i < elm_ids.length; i++) {
-	elms[elm_ids[i]] = document.getElementById(elm_ids[i]);
+	elms[elm_ids[i]] = getDOM(elm_ids[i]);
 }
 
 export class Minesweeper extends EventEmitter {
+	constructor() {
+		super();
+		this.playcount = 0;
+	}
+
 	/**
 	 * @param {DOMElement} elms
 	 * @param {Number} width 
 	 * @param {Number} height 
 	 * @param {Number} bombAmount 
 	 */
-	constructor(width, height, bombAmount, squareSize) {
-		super();
-		elms = elms;
+	init(width, height, bombAmount, squareSize, type) {
+		if (this.status === "ongame") return;
+		this.playcount++;
+
 		this.width = width;
 		this.height = height;
 		this.bombAmount = bombAmount;
 		this.squareSize = squareSize;
-	}
+		this.type = type;
 
-	init() {
-		/* 爆弾かそうでないかのboradArrayとフラッグや掘ったといったデータを別に管理し、描画するときにそれらを合成してhtml elmに落とす */
 		this.boardArray = []; // true -> bomb false -> valid
 		this.flagArray = []; // true -> flagged
 		this.diggedArray = []; // true -> digged
@@ -35,11 +39,18 @@ export class Minesweeper extends EventEmitter {
 		this.status = "ongame";
 		this.sel_x = -1;
 		this.sel_y = -1;
-		elms.sel_mask.addEventListener('click', this.cancelSelect.bind(this));
-		elms.sel_cancel.addEventListener('click', this.cancelSelect.bind(this));
-		elms.sel_unflag.addEventListener('click', this.unflag.bind(this));
-		elms.sel_flag.addEventListener('click', this.flag.bind(this));
-		elms.sel_dig.addEventListener('click', this.dig.bind(this));
+
+		// bf binded function
+		this.bf_cancelSelect = this.cancelSelect.bind(this);
+		this.bf_unflag = this.unflag.bind(this);
+		this.bf_flag = this.flag.bind(this);
+		this.bf_dig = this.dig.bind(this);
+		this.bf_click = this.click.bind(this);
+		elms.sel_mask.addEventListener('click', this.bf_cancelSelect);
+		elms.sel_cancel.addEventListener('click', this.bf_cancelSelect);
+		elms.sel_unflag.addEventListener('click', this.bf_unflag);
+		elms.sel_flag.addEventListener('click', this.bf_flag);
+		elms.sel_dig.addEventListener('click', this.bf_dig);
 
 		// Create first HTML
 		let id = 0;
@@ -48,6 +59,7 @@ export class Minesweeper extends EventEmitter {
 				const square = document.createElement('div');
 				square.dataset.y = y;
 				square.dataset.x = x;
+				square.dataset.playcount = this.playcount
 
 				square.style.width = this.squareSize + 'px';
 				square.style.height = this.squareSize + 'px';
@@ -60,7 +72,7 @@ export class Minesweeper extends EventEmitter {
 				square.classList.add('square');
 				square.setAttribute('id', id);
 	
-				square.addEventListener('click', this.click.bind(this));
+				square.addEventListener('click', this.bf_click);
 				elms.board.appendChild(square);
 				id++;
 			}
@@ -129,8 +141,6 @@ export class Minesweeper extends EventEmitter {
 			}
 
 		}
-		// if around the init point is bomb, flip it
-		// !!!!!
 
 		let id = 0
 		for (let y = 0; y < this.height; y++) {
@@ -209,8 +219,10 @@ export class Minesweeper extends EventEmitter {
 	}
 
 	click(e) {
+		if (this.status === "ended") return;
 		const x = parseInt(e.target.dataset.x);
 		const y = parseInt(e.target.dataset.y);
+
 		if (this.isFirst) {
 			this.isFirst = false;
 			this.createBoard(x, y);
@@ -373,14 +385,16 @@ export class Minesweeper extends EventEmitter {
 	}
 
 	checkGame() {
-		if (this.status === 'ended') return
+		if (this.status === 'ended') return;
 		const digged_amount = flatten(this.diggedArray).filter(e => e).length;
 		if (digged_amount === this.width*this.height - this.bombAmount) {
-			this.gameEnd('clear')
+			this.gameEnd('clear');
 		}
 	}
 
 	gameEnd(result) {
+		this.status = "ended";
+		this.lastTime = elms.h_time.textContent;
 		this.emit('ended');
 		clearTimeout(this.timerId);
 
@@ -402,6 +416,39 @@ export class Minesweeper extends EventEmitter {
 		this.emit('failed');
 	}
 
+	exit() {
+		this.gameEnd('exited');
+		this.emit('exited');
+		this.destroy();
+	}
+
+	destroy() {
+		elms.sel_mask.removeEventListener('click', this.bf_cancelSelect);
+		elms.sel_cancel.removeEventListener('click', this.bf_cancelSelect);
+		elms.sel_unflag.removeEventListener('click', this.bf_unflag);
+		elms.sel_flag.removeEventListener('click', this.bf_flag);
+		elms.sel_dig.removeEventListener('click', this.bf_dig);
+
+		while(elms.board.firstChild) {
+			const child = elms.board.firstChild;
+			child.removeEventListener('click', this.bf_click);
+			elms.board.removeChild(child);
+		}
+
+		elms.g_wrap.classList.remove(`type_${this.type}`);
+		elms.g_field.classList.remove(`type_${this.type}`);
+		elms.b_wrap.classList.remove(`type_${this.type}`);
+		elms.board.classList.remove(`type_${this.type}`);
+		elms.menu.classList.remove(`type_${this.type}`);
+
+		elms.h_flags.textContent = 0
+		elms.h_time.textContent = `00:00`;
+
+		this.emit('destroyed');
+		this.clearAllListeners()
+	}
+
+
 	/* timer */
 	timer_count() {
 		const self = this;
@@ -417,12 +464,6 @@ export class Minesweeper extends EventEmitter {
 			self.timer_count();
 		}, 1000);
 	}
-
-	exit() {
-		this.gameEnd('exited')
-		this.emit('exited')
-	}
-
 
 	/* Events */
 	onInit(listener) {
@@ -469,6 +510,9 @@ export class Minesweeper extends EventEmitter {
 	}
 	onExit(listener) {
 		this.addEventListener('exited', listener);
+	}
+	onDestroy(listener) {
+		this.addEventListener('destroyed', listener);
 	}
 
 

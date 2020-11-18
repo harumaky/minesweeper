@@ -28,4 +28,8 @@ export class EventEmitter {
 			}
 		})
 	}
+
+	clearAllListeners() {
+		this._listeners.clear()
+	}
 }

@@ -4,8 +4,10 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<title>マインスイーパー</title>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-	<link rel="stylesheet" href="style.css">
+
+	<link rel="stylesheet" href="./css/reboot.css">
+	<link rel="stylesheet" href="./css/form.css">
+	<link rel="stylesheet" href="./css/style.css">
 	<link rel="icon" type="image/png" sizes="16x16" href="./img/favicon-16x16.png">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 </head>
@@ -21,24 +23,22 @@
 	<div class="screen" id="screen">
 		<div class="lobby active" id="lobby">
 			<h1 class="title">Super Duper Minesweeper!</h1>
-			<form id="gameForm" class="p-3">
-				<div class="form-group">
-					<div class="input-group">
-						<div class="input-group-prepend">
-							<span class="input-group-text">幅</span>
-						</div>
-						<input class="form-control" type="number" id="conf_width" value="8" max="50" min="6" required>
 
-						<div class="input-group-prepend">
-							<span class="input-group-text">高さ</span>
-						</div>
-						<input class="form-control" type="number" id="conf_height" value="10" max="50" min="6" required>
-
-						<div class="input-group-prepend">
-							<span class="input-group-text">爆弾</span>
-						</div>
-						<input class="form-control" type="number" id="conf_bomb" value="20" required>
+			<form id="g_form" class="g_form">
+				<div class="g_form_inputs">
+					<div class="input_group">
+						<span class="input_text">幅</span>
+						<input type="number" id="conf_width" value="8" max="50" min="6" required>
 					</div>
+					<div class="input_group">
+						<span class="input_text">高さ</span>
+						<input type="number" id="conf_height" value="10" max="50" min="6" required>
+					</div>
+					<div class="input_group">
+						<span class="input_text">爆弾</span>
+						<input type="number" id="conf_bomb" value="20" required>
+					</div>
+					
 				</div>
 				<div class="input-group justify-content-center">
 					<button type="submit" class="btn start-btn">Start</button>
@@ -46,44 +46,44 @@
 			</form>
 		</div>
 
-		<div class="gamewrap" id="gamewrap">
-			<div class="gamefield" id="gamefield">
+		<div class="g_wrap" id="g_wrap">
+			<div class="g_field" id="g_field">
 				
-				<div class="boardwrap" id="boardwrap">
-					<div class="board_head">
-						<div class="board_head_flags_outer">
-							<img src="./img/flag.png" alt="" class="board_head_flag_img" width="30px">
+				<div class="b_wrap" id="b_wrap">
+					<div class="b_head">
+						<div class="b_head_flags_outer b_head_item">
+							<img src="./img/flag.png" alt="" class="b_head_flag_img" width="30px">
 							<p id="h_flags" class="d-inline-block"></p>
 						</div>
 
-						<div class="time board_head_time_outer">
-							<div id="h_time" class="board_head_time">00:00</div>
+						<div class="time b_head_time_outer b_head_item">
+							<div id="h_time" class="b_head_time">00:00</div>
 						</div>
 
-						<div class="board_head_sound_btns">
-							<button id="allow_sound" class="sound_btn btn_reset"></button>
-							<button id="forbit_sound" class="d-none sound_btn btn_reset d-none"></button>
+						<div class="b_head_sound_btns b_head_item">
+							<button id="allow_sound" class="sound_btn active"></button>
+							<button id="forbit_sound" class="sound_btn"></button>
 						</div>
-						<div class="board_head_menu_btn_outer" id="open_menu_outer">
-							<button id="open_menu_btn" class="board_head_menu_btn btn_reset"></button>
+						<div class="b_head_menu_btn_outer" id="open_menu_outer">
+							<button id="open_menu_btn" class="b_head_menu_btn "></button>
 						</div>
 					</div>
 					
 					<div class="board" id="board"></div>
 					<div class="sel_mask" id="sel_mask"></div>
 					<div class="sel" id="sel">
-						<button id="sel_cancel" class="btn_reset"></button>
-						<button id="sel_unflag" class="btn_reset"></button>
-						<button id="sel_flag" class="btn_reset"></button>
-						<button id="sel_dig" class="btn_reset"></button>
+						<button id="sel_cancel" class=""></button>
+						<button id="sel_unflag" class=""></button>
+						<button id="sel_flag" class=""></button>
+						<button id="sel_dig" class=""></button>
 					</div>
 				</div>
 
 			</div>
 
 			<div class="menu p-3" id="menu">
-				<button id="close_menu_btn" class="close_menu_btn btn_reset">とじる</button>
-				<button class="btn_reset quit_btn" id="exit_btn"><span>Exit Game</span></button>
+				<button id="close_menu_btn" class="close_menu_btn ">とじる</button>
+				<button class=" quit_btn" id="exit_btn"><span>Exit Game</span></button>
 				<div>
 					<p>わわわわわわわわわわわ</p>
 					<p>わわわわわわわわわわわ</p>
@@ -96,6 +96,43 @@
 					<p>わわわわわわわわわわわ</p>
 					<p>わわわわわわわわわわわ</p>
 					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+					<p>わわわわわわわわわわわ</p>
+				</div>
+			</div>
+
+		</div>
+		<!-- end g_wrap -->
+		<div class="result_modal modal_wrap" id="clear_modal">
+			<div class="clear_modal modal">
+				<div class="result">
+					<img src="./img/congrats.svg" alt="" class="victory_img">
+					<div class="result_time" id="clear_result_time">00:00</div>
+				</div>
+				<div class="controls">
+					<button id="close_clear_modal" class="close_result_modal"><span>CLOSE</span></button>
+					<button class="restart_btn"><span>RESTART</span></button>
+				</div>
+			</div>
+		</div>
+
+		<div class="result_modal modal_wrap" id="fail_modal">
+			<div class="fail_modal modal">
+				<div class="result">
+					<img src="./img/fail.svg" alt="" class="fail_img">
+					<div class="result_time" id="fail_result_time">00:00</div>
+				</div>
+				<div class="controls">
+					<button id="close_fail_modal" class="close_result_modal"><span>CLOSE</span></button>
+					<button class="restart_btn"><span>RESTART</span></button>
 				</div>
 			</div>
 		</div>

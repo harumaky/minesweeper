@@ -4,31 +4,36 @@ import { SEHandler } from './SEHandler.js';
 import { gamehandler } from './GameHandler.js';
 import { SDF, getDOM, wait } from './utils.js';
 
-let minesweeper;
-let type; // layouttype
+const minesweeper = new Minesweeper;
+
 const screen = getDOM('screen');
 const lobby = getDOM('lobby');
-const gameForm = getDOM('gameForm');
+const g_form = getDOM('g_form');
 const f_width = getDOM('conf_width');
 const f_height = getDOM('conf_height');
 const f_bomb = getDOM('conf_bomb');
 const f_size_inputs = [f_width, f_height];
 
-const g_wrap = getDOM('gamewrap');
-const g_field = getDOM('gamefield');
-const b_wrap = getDOM('boardwrap');
+const g_wrap = getDOM('g_wrap');
+const g_field = getDOM('g_field');
+const b_wrap = getDOM('b_wrap');
 const board = getDOM('board');
 const menu = getDOM('menu');
 
-f_width.value = localStorage.getItem('last_game_width') || 8;
-f_height.value = localStorage.getItem('last_game_height') || 10;
-f_bomb.value = localStorage.getItem('last_game_bomb_amount') || 20;
+setDefValue();
 
-SDF(gameForm, 'change', gameFormValidation);
-SDF(gameForm, 'submit', function(e) {
+function setDefValue() {
+	f_width.value = localStorage.getItem('last_game_width') || 8;
+	f_height.value = localStorage.getItem('last_game_height') || 10;
+	f_bomb.value = localStorage.getItem('last_game_bomb_amount') || 20;
+}
+
+
+SDF(g_form, 'change', g_formValidation);
+SDF(g_form, 'submit', function(e) {
 	e.preventDefault();
 	e.stopPropagation();
-	if (!gameFormValidation()) {
+	if (!g_formValidation()) {
 		alert('設定エラーがあります');
 	} else {
 		const j_width = parseInt(f_width.value);
@@ -39,7 +44,7 @@ SDF(gameForm, 'submit', function(e) {
 });
 
 function loadCompleted() {
-	document.getElementById('loading_wrap').classList.add('slideout')
+	getDOM('loading_wrap').classList.add('slideout')
 }
 const SE = new SEHandler();
 SE.load();
@@ -48,27 +53,31 @@ SE.onLoadCompleted(function() {
 	loadCompleted();
 })
 SDF('allow_sound', 'click', function() { 
+	console.log('allow');
 	SE.allowed = true;
-	this.classList.add('d-none');
-	getDOM('forbit_sound').classList.remove('d-none');
+	this.classList.remove('active');
+	getDOM('forbit_sound').classList.add('active');
 })
 SDF('forbit_sound', 'click', function() {
 	SE.allowed = false;
-	this.classList.add('d-none');
-	getDOM('allow_sound').classList.remove('d-none');
-})
+	this.classList.remove('active');
+	getDOM('allow_sound').classList.add('active');
+});
 
 
 async function initiate(width, height, bomb) {
-	// decide #gamefield size
+	// decide #g_field size
 	// client window size (c_) = #screen's height, not window.height
-	lobby.classList.remove('active')
-	await wait(1000)
+	lobby.classList.remove('active');
+	await wait(1000);
+	g_wrap.classList.add('active');
+
 	const c_width = screen.clientWidth;
 	const c_height = screen.clientHeight;
 
 	console.log(`screen width: ${c_width}, height: ${c_height}`);
 
+	let type; // layouttype
 	if (c_width < c_height && c_width < 1024) {
 		type = "A";
 		if (c_width < 1024 && width > height) {
@@ -94,12 +103,9 @@ async function initiate(width, height, bomb) {
 	board.classList.add(`type_${type}`);
 	menu.classList.add(`type_${type}`);
 
-	g_wrap.classList.add('active');
-
-	const f_width = g_field.clientWidth;
-	const f_height = g_field.clientHeight;
-
-	const squareSize = Math.min(Math.floor(f_width/width), Math.floor((f_height-50)/height));
+	const field_w = g_field.clientWidth;
+	const field_h = g_field.clientHeight;
+	const squareSize = Math.min(Math.floor(field_w/width), Math.floor((field_h-50)/height));
 
 	board.style.width = squareSize * width + 'px';
 	board.style.height = squareSize * height + 'px';
@@ -110,15 +116,15 @@ async function initiate(width, height, bomb) {
 	localStorage.setItem('last_game_height', height);
 	localStorage.setItem('last_game_bomb_amount', bomb);
 
-	minesweeper = new Minesweeper(width, height, bomb, squareSize);
 	minesweeper.onInit(function() {
+		console.log(`playcount: ${this.playcount}`);
 		gamehandler(this, SE);
 	})
-	minesweeper.init();
+	minesweeper.init(width, height, bomb, squareSize, type);
 
 }
 
-function gameFormValidation() {
+function g_formValidation() {
 	let ok = true;
 	f_size_inputs.forEach(input => {
 		let val = parseInt(input.value);
@@ -155,20 +161,34 @@ SDF('close_menu_btn', 'click', function() {
 })
 
 SDF('exit_btn', 'click', reset)
-
 function reset() {
 	minesweeper.exit();
-	location.reload();
-	// g_wrap.classList.remove('active');
-	// lobby.classList.add('active');
-	// while(board.firstChild) {
-	// 	board.removeChild(board.firstChild);
-	// }
-	// g_wrap.classList.remove(`type_${type}`);
-	// g_field.classList.remove(`type_${type}`);
-	// b_wrap.classList.remove(`type_${type}`);
-	// board.classList.remove(`type_${type}`);
-	// menu.classList.remove(`type_${type}`);
 
+	g_wrap.classList.remove('active');
+	menu.classList.remove('active');
+
+	lobby.classList.add('active');
 
 }
+
+
+document.querySelectorAll('.close_result_modal').forEach(elm => {
+	elm.addEventListener('click', () => {
+		getDOM('clear_modal').classList.remove('active');
+		getDOM('fail_modal').classList.remove('active');
+	})
+})
+
+document.querySelectorAll('.restart_btn').forEach(elm => {
+	elm.addEventListener('click', function() {
+		getDOM('clear_modal').classList.remove('active');
+		getDOM('fail_modal').classList.remove('active');
+		const width = minesweeper.width;
+		const height = minesweeper.height;
+		const bombAmount = minesweeper.bombAmount;
+		minesweeper.onDestroy(() => {
+			initiate(width, height, bombAmount)
+		});
+		minesweeper.exit();
+	})
+})
