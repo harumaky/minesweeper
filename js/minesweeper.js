@@ -113,33 +113,33 @@ export class Minesweeper extends EventEmitter {
 		
 		let oneD_Array = emptyArray.concat(bombsArray);
 		oneD_Array = shuffle(oneD_Array);
-		
-		// init boradArray and statusArrays, then apply them into HTML
+
+		let oneD_idx = 0;
 		for (let y = 0; y < this.height; y++) {
 			this.boardArray[y] = Array(this.width).fill(false);
 			this.flagArray[y] = Array(this.width).fill(false);
 			this.diggedArray[y] = Array(this.width).fill(false);
 			this.numsArray[y] = Array(this.width).fill(9);
 			for (let x = 0; x < this.width; x++) {
-				let oneD_idx = this.width * y + x;
+				let oneD_pointer = this.width * y + x;
 				if (
-					oneD_idx === init_idx ||
-					(!noLeft && oneD_idx === init_idx - 1) ||
-					(!noRight && oneD_idx === init_idx + 1) ||
-					(!noAbove && oneD_idx === init_idx - this.width) ||
-					(!noBelow && oneD_idx === init_idx + this.width) ||
-					(!noLeft && !noAbove && oneD_idx === init_idx - this.width - 1) ||
-					(!noRight && !noAbove && oneD_idx === init_idx - this.width + 1) ||
-					(!noLeft && !noBelow && oneD_idx === init_idx + this.width - 1) ||
-					(!noRight && !noBelow && oneD_idx === init_idx + this.width + 1)
+					oneD_pointer === init_idx ||
+					(!noLeft && oneD_pointer === init_idx - 1) ||
+					(!noRight && oneD_pointer === init_idx + 1) ||
+					(!noAbove && oneD_pointer === init_idx - this.width) ||
+					(!noBelow && oneD_pointer === init_idx + this.width) ||
+					(!noLeft && !noAbove && oneD_pointer === init_idx - this.width - 1) ||
+					(!noRight && !noAbove && oneD_pointer === init_idx - this.width + 1) ||
+					(!noLeft && !noBelow && oneD_pointer === init_idx + this.width - 1) ||
+					(!noRight && !noBelow && oneD_pointer === init_idx + this.width + 1)
 					) 
 				{
-					this.boardArray[y][x] = false;
+					// 初期周囲点の場合のboardArrayはデフォルトのfalse
 					continue;
 				}
 				this.boardArray[y][x] = oneD_Array[oneD_idx];
+				oneD_idx++;
 			}
-
 		}
 
 		let id = 0
@@ -196,26 +196,6 @@ export class Minesweeper extends EventEmitter {
 				id++;
 			}
 		}
-	}
-
-	redraw() {
-		this.emit('changed');
-		let id = 0;
-		for (let y = 0; y < this.height; y++) {
-			for (let x = 0; x < this.width; x++) {
-				const square = document.getElementById(id);
-	
-				if (this.flagArray[y][x]) square.classList.add('flag');
-				else square.classList.remove('flag');
-	
-				if (this.diggedArray[y][x]) square.classList.add('digged');
-				// cannot undig
-				id++;
-			}
-		}
-		const flag_reminder = this.bombAmount - flatten(this.flagArray).filter(e => e).length;
-		elms.h_flags.textContent = flag_reminder;
-		this.emit('redrew');
 	}
 
 	click(e) {
@@ -296,7 +276,7 @@ export class Minesweeper extends EventEmitter {
 
 		this.diggedArray[this.sel_y][this.sel_x] = true;
 		this.emit('digged');
-		this.redraw();
+		this.emit('changed');
 		this.checkGame();
 	
 		// digAroundIfPossible
@@ -345,7 +325,7 @@ export class Minesweeper extends EventEmitter {
 				this.diggedArray[y+1][x] = true;
 				if (x < this.width-1) this.diggedArray[y+1][x+1] = true;
 			}
-			this.redraw();
+			this.emit('changed');
 			this.checkGame();
 		}, 10);
 		
@@ -361,13 +341,15 @@ export class Minesweeper extends EventEmitter {
 	flag() {
 		this.flagArray[this.sel_y][this.sel_x] = true;
 		this.emit('flagged');
-		this.redraw();
+		this.emit('changed');
+		this.checkGame()
 		this.unselect();
 	}
 	unflag() {
 		this.flagArray[this.sel_y][this.sel_x] = false;
 		this.emit('unflagged');
-		this.redraw();
+		this.emit('changed');
+		this.checkGame();
 		this.unselect();
 	}
 
@@ -387,7 +369,8 @@ export class Minesweeper extends EventEmitter {
 	checkGame() {
 		if (this.status === 'ended') return;
 		const digged_amount = flatten(this.diggedArray).filter(e => e).length;
-		if (digged_amount === this.width*this.height - this.bombAmount) {
+		const flag_amount = flatten(this.flagArray).filter(e => e).length;
+		if (digged_amount === this.width*this.height - this.bombAmount && flag_amount === this.bombAmount) {
 			this.gameEnd('clear');
 		}
 	}
@@ -439,13 +422,14 @@ export class Minesweeper extends EventEmitter {
 		elms.g_field.classList.remove(`type_${this.type}`);
 		elms.b_wrap.classList.remove(`type_${this.type}`);
 		elms.board.classList.remove(`type_${this.type}`);
+		elms.board.classList.remove(`failed`);
 		elms.menu.classList.remove(`type_${this.type}`);
 
 		elms.h_flags.textContent = 0
 		elms.h_time.textContent = `00:00`;
 
 		this.emit('destroyed');
-		this.clearAllListeners()
+		this.clearAllListeners();
 	}
 
 
@@ -493,9 +477,6 @@ export class Minesweeper extends EventEmitter {
 	onUnflag(listener) {
 		this.addEventListener('unflagged', listener);
 	}
-	onRedraw(listener) {
-		this.addEventListener('redrew', listener);
-	}
 	onChange(listener) {
 		this.addEventListener('changed', listener);
 	}
@@ -513,18 +494,6 @@ export class Minesweeper extends EventEmitter {
 	}
 	onDestroy(listener) {
 		this.addEventListener('destroyed', listener);
-	}
-
-
-	showJSArrays() {
-		console.log("board");
-		console.log(this.boardArray);
-		console.log("digged");
-		console.log(this.diggedArray);
-		console.log("flagged");
-		console.log(this.flagArray);
-		console.log("nums");
-		console.log(this.numsArray);
 	}
 	
 }

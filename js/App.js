@@ -46,6 +46,10 @@ SDF(g_form, 'submit', function(e) {
 function loadCompleted() {
 	getDOM('loading_wrap').classList.add('slideout')
 }
+function loadStart() {
+	getDOM('loading_wrap').classList.remove('slideout')
+}
+
 const SE = new SEHandler();
 SE.load();
 SE.onLoadCompleted(function() {
@@ -53,7 +57,6 @@ SE.onLoadCompleted(function() {
 	loadCompleted();
 })
 SDF('allow_sound', 'click', function() { 
-	console.log('allow');
 	SE.allowed = true;
 	this.classList.remove('active');
 	getDOM('forbit_sound').classList.add('active');
@@ -69,6 +72,7 @@ async function initiate(width, height, bomb) {
 	// decide #g_field size
 	// client window size (c_) = #screen's height, not window.height
 	lobby.classList.remove('active');
+	loadStart();
 	await wait(1000);
 	g_wrap.classList.add('active');
 
@@ -118,6 +122,7 @@ async function initiate(width, height, bomb) {
 
 	minesweeper.onInit(function() {
 		console.log(`playcount: ${this.playcount}`);
+		loadCompleted()
 		gamehandler(this, SE);
 	})
 	minesweeper.init(width, height, bomb, squareSize, type);
@@ -160,8 +165,8 @@ SDF('close_menu_btn', 'click', function() {
 	menu.classList.remove('active')
 })
 
-SDF('exit_btn', 'click', reset)
-function reset() {
+SDF('exit_btn', 'click', exit)
+function exit() {
 	minesweeper.exit();
 
 	g_wrap.classList.remove('active');
@@ -170,7 +175,6 @@ function reset() {
 	lobby.classList.add('active');
 
 }
-
 
 document.querySelectorAll('.close_result_modal').forEach(elm => {
 	elm.addEventListener('click', () => {
@@ -183,6 +187,7 @@ document.querySelectorAll('.restart_btn').forEach(elm => {
 	elm.addEventListener('click', function() {
 		getDOM('clear_modal').classList.remove('active');
 		getDOM('fail_modal').classList.remove('active');
+		getDOM('loading_wrap').classList.remove('slideout');
 		const width = minesweeper.width;
 		const height = minesweeper.height;
 		const bombAmount = minesweeper.bombAmount;

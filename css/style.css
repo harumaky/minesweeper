@@ -206,6 +206,7 @@ input.warn {
 }
 
 .b_head button {
+	cursor: pointer;
 	background-color: transparent;
 	width: 50px;
 	height: 50px;
@@ -230,11 +231,9 @@ input.warn {
 
 .sound_btn {
 	display: none;
-	visibility: hidden;
 }
 .sound_btn.active {
 	display: inline-block;
-	visibility: visible;
 }
 .sound_btn:hover {
 	opacity: 0.6;
@@ -264,6 +263,30 @@ input.warn {
 	display: flex;
 	flex-wrap: wrap;
 	background: grey;
+	transition: all 0.4s;
+}
+.board.failed {
+	animation: bomb .3s 5 ease-out;
+}
+@keyframes bomb {
+	0% {transform: translate(0px, 0px)}
+    10% {transform: translate(-30px, -30px)}
+	20% {transform: translate(30px, 10px)}
+	30% {transform: translate(10px, -10px)}
+	40% {transform: translate(-10px, 10px)}
+	42% {transform: translate(-10px, -10px);}
+	44% {transform: translate(10px, -10px);}
+	46% {transform: translate(0px, 10px);}
+	50% {transform: translate(10px, -10px)}
+	60% {transform: translate(-20px, 20px)}
+	70% {transform: translate(20px, 10px)}
+	80% {transform: translate(-20px, -20px)}
+	90% {transform: translate(30px, -30px)}
+    100% {transform: translate(0px, 0px)}
+}
+
+.board.failed .bomb {
+	background: red;
 }
 
 .menu {
@@ -290,7 +313,9 @@ input.warn {
 	opacity: 1;
 }
 .close_menu_btn {
+	cursor: pointer;
 	position: absolute;
+	background: transparent;
 	top: 10px; right: 10px;
 	width: 50px;
 	height: 50px;
@@ -358,12 +383,6 @@ input.warn {
 .square:nth-child(odd) {
 	background: #b7e261;
 }
-
-/*
-.square.bomb {
-	background: darkorange;
-}
-*/
 
 .square.digged {
 	font-weight: bold;
@@ -451,7 +470,7 @@ input.warn {
 	position: absolute;
 	z-index: 30;
 	width: 100%;
-	height: 100vh;
+	height: 100%;
 	top: -100%; left: 0;
 	background: rgba(255,255,255, 0.8);
 	opacity: 0;
@@ -493,7 +512,6 @@ input.warn {
 	position: absolute;
 	bottom: 20px; left: 50%;
 	transform: translateX(-50%);
-
   	background-image: linear-gradient(135deg, #b8751e 0%, #ffce08 37%, #fefeb2 47%, #fafad6 50%, #fefeb2 53%, #e1ce08 63%, #b8751e 100%);
  	-webkit-background-clip: text;
   	-webkit-text-fill-color: transparent;
@@ -506,7 +524,8 @@ input.warn {
 	color: rgb(255, 255, 255);
 	background-image: linear-gradient(90deg, #338b7d 40%, #474199 100%);
 	overflow: hidden;
-	width: 300px;
+	width: 90%;
+	max-width: 300px;
 	box-shadow: rgb(255, 255, 255) 0 4px 8px;
 	transition: all 0.5s;
 }
