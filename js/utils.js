@@ -50,6 +50,24 @@ export function getDOM(id) {
 	return elm;
 }
 
+/**
+ * add notice
+ * @param {*} msg 
+ */
+export function createNotice(msg) {
+	const tmp = getDOM('notice_tmp');
+	const wrap = getDOM('notice_wrap');
+	const clone = tmp.content.cloneNode(true);
+	const msg_elm = clone.querySelector('.notice_msg');
+	const close_btn = clone.querySelector('.notice_close');
+	msg_elm.textContent = msg;
+	close_btn.addEventListener('click', function() {
+		wrap.removeChild(this.parentNode);
+	})
+	wrap.appendChild(clone);
+}
+
+
 export function shuffle(arr) {
 	for (let i = arr.length - 1; i >= 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1));

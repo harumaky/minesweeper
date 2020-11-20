@@ -19,15 +19,16 @@ export class SEHandler extends EventEmitter {
 		this.loadedAmount = 0;
 		this.amount = Object.keys(this.list).length;
 		this.allowed = false;
-		this.state = "notloaded";
+		this.status = "default";
+
 	}
 
 	load() {
 		for (const name in this.list) {
 			this.list[name].load();
-			this.list[name].addEventListener('abort', this.aborted.bind(this));
+			this.list[name].addEventListener('abort', this.errored.bind(this));
 			this.list[name].addEventListener('error', this.errored.bind(this));
-			this.list[name].addEventListener('stalled', this.stalled.bind(this));
+			this.list[name].addEventListener('stalled', this.errored.bind(this));
 			this.list[name].addEventListener('canplaythrough', this.addLoaded.bind(this));
 		}
 	}
@@ -35,33 +36,30 @@ export class SEHandler extends EventEmitter {
 	addLoaded() {
 		this.loadedAmount++;
 		if (this.loadedAmount === this.amount) {
-			this.emitLoadCompleted();
+			this.emitTriedLoad('loaded');
 		}
 	}
 
-	onLoadCompleted(listener) {
-		this.addEventListener("loaded", listener);
+	triedLoad(listener) {
+		this.addEventListener("tried", listener);
 	}
-	emitLoadCompleted() {
-		this.state = "loaded";
-		this.emit("loaded", "SE");
+	emitTriedLoad(status) {
+		// only once
+		if (this.status !== 'default') return;
+
+		this.status = status;
+		this.emit("tried", "SE");
 	}
 
 	play(name) {
-		if (this.state === "loaded" && this.allowed) {
+		if (this.allowed) {
 			this.list[name].play();
-		} else {
-			console.log("sound not playable");
 		}
 	}
 
-	aborted() {
-		console.error("load aborted");
-	}
-	errored() {
-		console.error("load errored");
-	}
-	stalled() {
-		console.error(`stalled ${this.loadedAmount}`);
+	errored(e) {
+		console.error(`failed load: ${e.path[0].currentSrc}`);
+		console.log(e);
+		this.emitTriedLoad('errored')
 	}
 }

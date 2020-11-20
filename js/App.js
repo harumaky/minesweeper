@@ -2,7 +2,7 @@
 import { Minesweeper } from './minesweeper.js';
 import { SEHandler } from './SEHandler.js';
 import { gamehandler } from './GameHandler.js';
-import { SDF, getDOM, wait } from './utils.js';
+import { SDF, getDOM, wait, createNotice } from './utils.js';
 
 createNotice('これはまだβ版です。バグがあっても目をつぶってください')
 
@@ -14,7 +14,6 @@ const g_form = getDOM('g_form');
 const f_width = getDOM('conf_width');
 const f_height = getDOM('conf_height');
 const f_bomb = getDOM('conf_bomb');
-const f_size_inputs = [f_width, f_height];
 
 const g_wrap = getDOM('g_wrap');
 const g_field = getDOM('g_field');
@@ -31,12 +30,15 @@ function setDefValue() {
 }
 
 
-SDF(g_form, 'change', g_formValidation);
+SDF(g_form, 'change', configValidation);
 SDF(g_form, 'submit', function(e) {
 	e.preventDefault();
 	e.stopPropagation();
-	if (!g_formValidation()) {
-		createNotice('設定エラーがあります');
+	const validation = configValidation();
+	if (!validation.isOK) {
+		validation.messages.forEach(msg => {
+			createNotice(msg);
+		});
 	} else {
 		const j_width = parseInt(f_width.value);
 		const j_height = parseInt(f_height.value);
@@ -54,15 +56,19 @@ function loadStart() {
 
 const SE = new SEHandler();
 SE.load();
-SE.onLoadCompleted(function() {
-	console.log(`All sound effects loaded in ${new Date() - SE.initTime}ms`);
+SE.triedLoad(function() {
+	if (SE.status === 'loaded') {
+		console.log(`All sound effects loaded in ${new Date() - SE.initTime}ms`);
+	} else {
+		createNotice('音源の読み込みに失敗しました')
+	}
 	loadCompleted();
-})
+});
 SDF('allow_sound', 'click', function() { 
 	SE.allowed = true;
 	this.classList.remove('active');
 	getDOM('forbit_sound').classList.add('active');
-})
+});
 SDF('forbit_sound', 'click', function() {
 	SE.allowed = false;
 	this.classList.remove('active');
@@ -72,7 +78,7 @@ SDF('forbit_sound', 'click', function() {
 
 async function initiate(width, height, bomb) {
 	// decide #g_field size
-	// client window size (c_) = #screen's height, not window.height
+	// client window size (c_) = #screen 's height, not window.height
 	lobby.classList.remove('active');
 	loadStart();
 	await wait(1000);
@@ -131,31 +137,65 @@ async function initiate(width, height, bomb) {
 
 }
 
-function g_formValidation() {
-	let ok = true;
-	f_size_inputs.forEach(input => {
-		let val = parseInt(input.value);
-		if (!val || val < 6 || val > 50) {
+/**
+ * validate 3 values (width, height, bombamount)
+ * @returns {Object} .isOK (boolean)
+ * @returns {Object} .messages (array)
+ */
+function configValidation() {
+	let result = {
+		isOK: true,
+		messages: []
+	};
+
+	const inputs = [f_width, f_height, f_bomb];
+	const names = ['幅','高さ','爆弾の数'];
+	for (let i = 0; i < inputs.length; i++) {
+		const input = inputs[i];
+		const val = parseInt(input.value);
+		if (isNaN(val)) {
+			result.isOK = false;
+			result.messages.push('入力は全て半角数字にしてください');
+			return result;
+		}
+	}
+	// now they are all numbers
+	const W = f_width.value;
+	const H = f_height.value;
+
+	[f_width, f_height].forEach((input, i) => {
+		const val = input.value;
+		if (val < 6 || val > 50) {
 			input.classList.add('warn');
-			ok = false;
+			result.isOK = false;
+			result.messages.push(`${names[i]}の大きさは6~50以内にしてください`);
 		} else {
 			input.classList.remove('warn');
 		}
 	});
+
 	if(!isBombAmoutOk()) {
 		f_bomb.classList.add('warn');
-		ok = false;
+		result.isOK = false;
+		result.messages.push('爆弾の数は10%~80%にしてください')
 	} else {
 		f_bomb.classList.remove('warn');
 	}
-	return ok;
+
+	const ratio = Math.max(W, H) / Math.min(W, H);
+	if (ratio >= 2) {
+		result.isOK = false;
+		result.messages.push('幅と高さの差が大きすぎます');
+	}
+
+	return result;
 }
 
 function isBombAmoutOk() {
 	const size = parseInt(f_width.value) * parseInt(f_height.value);
 	const bomb_amout = parseInt(f_bomb.value);
 	const max = Math.round(size*0.8);
-	const min = 1;
+	const min = Math.round(size*0.1);
 	if (!bomb_amout || max < bomb_amout || min > bomb_amout) return false;
 	return true;
 }
@@ -199,16 +239,3 @@ document.querySelectorAll('.restart_btn').forEach(elm => {
 		minesweeper.exit();
 	})
 })
-
-function createNotice(msg) {
-	const tmp = getDOM('notice_tmp');
-	const wrap = getDOM('notice_wrap');
-	const clone = tmp.content.cloneNode(true);
-	const msg_elm = clone.querySelector('.notice_msg');
-	const close_btn = clone.querySelector('.notice_close');
-	msg_elm.textContent = msg;
-	close_btn.addEventListener('click', function() {
-		wrap.removeChild(this.parentNode);
-	})
-	wrap.appendChild(clone);
-}
