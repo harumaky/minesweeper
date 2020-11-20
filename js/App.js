@@ -4,6 +4,8 @@ import { SEHandler } from './SEHandler.js';
 import { gamehandler } from './GameHandler.js';
 import { SDF, getDOM, wait } from './utils.js';
 
+createNotice('これはまだβ版です。バグがあっても目をつぶってください')
+
 const minesweeper = new Minesweeper;
 
 const screen = getDOM('screen');
@@ -34,7 +36,7 @@ SDF(g_form, 'submit', function(e) {
 	e.preventDefault();
 	e.stopPropagation();
 	if (!g_formValidation()) {
-		alert('設定エラーがあります');
+		createNotice('設定エラーがあります');
 	} else {
 		const j_width = parseInt(f_width.value);
 		const j_height = parseInt(f_height.value);
@@ -85,7 +87,7 @@ async function initiate(width, height, bomb) {
 	if (c_width < c_height && c_width < 1024) {
 		type = "A";
 		if (c_width < 1024 && width > height) {
-			alert('レイアウト調整のため指定した幅と高さが反転します');
+			createNotice('レイアウト調整のため指定した幅と高さが反転しました');
 			[width, height] = [height, width];
 		}
 	} else if (width > height) {
@@ -97,7 +99,7 @@ async function initiate(width, height, bomb) {
 	}
 
 	if (!type) {
-		alert('画面の条件が満たされていないため開始できませんでした');
+		createNotice('画面の条件が満たされていないため開始できませんでした');
 		return;
 	}
 
@@ -197,3 +199,16 @@ document.querySelectorAll('.restart_btn').forEach(elm => {
 		minesweeper.exit();
 	})
 })
+
+function createNotice(msg) {
+	const tmp = getDOM('notice_tmp');
+	const wrap = getDOM('notice_wrap');
+	const clone = tmp.content.cloneNode(true);
+	const msg_elm = clone.querySelector('.notice_msg');
+	const close_btn = clone.querySelector('.notice_close');
+	msg_elm.textContent = msg;
+	close_btn.addEventListener('click', function() {
+		wrap.removeChild(this.parentNode);
+	})
+	wrap.appendChild(clone);
+}

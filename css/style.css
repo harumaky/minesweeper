@@ -47,6 +47,57 @@
 	overflow: hidden;
 }
 
+.notice_wrap {
+	background: transparent;
+	position: fixed;
+	top: 0; right: 0;
+	padding: 10px;
+	z-index: 90;
+	width: 100%;
+	max-width: 300px;
+}
+.notice {
+	display: flex;
+	
+	min-width: 50px;
+	background: rgba(255,255,255,0.96);
+	border-radius: 10px;
+	overflow: hidden;
+}
+.notice:not(:last-child) {
+	margin-bottom: 10px;
+}
+.notice_msg {
+	padding: 0 5px;
+	align-self: center;
+	width: 70%;
+	word-wrap: break-word;
+	margin: 0;
+	display: inline;
+}
+.notice_close {
+	background: transparent;
+	width: 30%;
+	align-self: stretch;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+	padding: 0;
+}
+.notice_close:hover {
+	opacity: 0.6;
+	background: rgba(200,200,200,0.9);
+}
+.notice_close_img {
+	width: 40px;
+	height: 40px;
+	background-image: url('../img/del_black.svg');
+	background-repeat: no-repeat;
+	opacity: 0.8;
+}
+
+
 .lobby {
 	opacity: 0;
 	transition: all 0.8s;
