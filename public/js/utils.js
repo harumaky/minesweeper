@@ -1,5 +1,7 @@
 'use strict';
 
+export const socket = io();
+
 /**
  * wait
  * @param {Number} ms 

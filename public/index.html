@@ -33,6 +33,7 @@
 		<div class="notice_wrap" id="notice_wrap"></div>
 		<div class="lobby active" id="lobby">
 			<h1 class="title">Super Duper Minesweeper!</h1>
+			<h2 id="server-time"></h2>
 
 			<form id="g_form" class="g_form">
 				<div class="g_form_inputs">
@@ -152,6 +153,7 @@
 	<script>
 		document.querySelector(".screen").style.height = window.innerHeight + 'px';
 	</script>
-	<script src="./js/App.js" type="module"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="./js/app.js" type="module"></script>
 </body>
 </html>

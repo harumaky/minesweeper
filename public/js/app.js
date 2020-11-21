@@ -2,7 +2,12 @@
 import { Minesweeper } from './minesweeper.js';
 import { SEHandler } from './SEHandler.js';
 import { gamehandler } from './GameHandler.js';
-import { SDF, getDOM, wait, createNotice } from './utils.js';
+import { SDF, getDOM, wait, createNotice, socket } from './utils.js';
+  
+socket.on('time', (timeString) => {
+	const el = document.getElementById('server-time');
+	el.innerHTML = 'Server time: ' + timeString;
+});
 
 createNotice('これはまだβ版です。バグがあっても目をつぶってください')
 
