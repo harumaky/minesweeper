@@ -32,7 +32,8 @@
 	<div class="screen" id="screen">
 		<div class="notice_wrap" id="notice_wrap"></div>
 		<div class="lobby active" id="lobby">
-			<h1 class="title">Super Duper Minesweeper!</h1>
+			<h1 class="title">Super Duper Minesweeper!<span class="version" id="version">0.1.0β</span></h1>
+			
 			<h2 id="server-time"></h2>
 
 			<form id="g_form" class="g_form">
@@ -49,9 +50,14 @@
 						<span class="input_text">爆弾</span>
 						<input type="number" id="conf_bomb" value="20" required>
 					</div>
-					
 				</div>
-				<div class="input-group justify-content-center">
+				<div class="g_form_templates">
+					<button type="button" id="temp_low">低</button>
+					<button type="button" id="temp_medium">中</button>
+					<button type="button" id="temp_high">高</button>
+					<button type="button" id="temp_duper">Duper</button>
+				</div>
+				<div class="input-group">
 					<button type="submit" class="btn start-btn">Start</button>
 				</div>
 			</form>
@@ -107,17 +113,6 @@
 					<p>わわわわわわわわわわわ</p>
 					<p>わわわわわわわわわわわ</p>
 					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
 				</div>
 			</div>
 
@@ -126,7 +121,7 @@
 		<div class="result_modal modal_wrap" id="clear_modal">
 			<div class="clear_modal modal">
 				<div class="result">
-					<img src="./img/congrats.svg" alt="" class="victory_img">
+					<img src="./img/congrats.svg" class="victory_img" id="victory_img">
 					<div class="result_time" id="clear_result_time">00:00</div>
 				</div>
 				<div class="controls">
@@ -139,7 +134,7 @@
 		<div class="result_modal modal_wrap" id="fail_modal">
 			<div class="fail_modal modal">
 				<div class="result">
-					<img src="./img/fail.svg" alt="" class="fail_img">
+					<img src="./img/fail.svg" class="fail_img" id="fail_img">
 					<div class="result_time" id="fail_result_time">00:00</div>
 				</div>
 				<div class="controls">

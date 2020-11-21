@@ -301,7 +301,7 @@ export class Minesweeper extends EventEmitter {
 			this.emit('changed');
 			this.checkGame();
 		}
-		
+
 		this.unselect();
 	}
 
@@ -374,7 +374,7 @@ export class Minesweeper extends EventEmitter {
 		if (this.status === 'ended') return;
 		const digged_amount = flatten(this.diggedArray).filter(e => e).length;
 		const flag_amount = flatten(this.flagArray).filter(e => e).length;
-		if (digged_amount === this.width*this.height - this.bombAmount && flag_amount === this.bombAmount) {
+		if (digged_amount === this.width*this.height - this.bombAmount) {
 			this.gameEnd('clear');
 		}
 	}

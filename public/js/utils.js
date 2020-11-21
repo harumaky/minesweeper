@@ -109,3 +109,11 @@ export function setTopLeft(elm, top, left) {
 	elm.style.top = top + 'px';
 	elm.style.left = left + 'px';
 }
+
+export const level_templates = {
+	// W, H, Bomb
+	low: [10, 8, 10],
+	medium: [18, 14, 40],
+	high: [24, 20, 99],
+	duper: [36, 30, 270]
+}

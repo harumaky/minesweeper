@@ -87,7 +87,7 @@ input {
 
 /* inputにフォーカスが当たっている時 */
 input:focus {
-	border-bottom: 1px solid#e74c3c;
+	border-bottom: 2px solid #55f355;
 }
 
 /* range */
@@ -358,14 +358,17 @@ button {
 	display: table;
 	font-weight: bold;
 	line-height: 1;
-	margin: 10px auto 0;
 	outline: none;
-	padding: 20px 40px;
-	transition: background-color 0.2s ease-out, transform 0.2s ease-out, border-bottom 0.2s ease-out;
+	padding: 6px 8px;
+	background: #eee;
+	transition: all 0.2s ease-out;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+}
+button:hover {
+	opacity: 0.8;
 }
 
 

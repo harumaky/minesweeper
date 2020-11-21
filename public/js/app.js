@@ -2,14 +2,13 @@
 import { Minesweeper } from './minesweeper.js';
 import { SEHandler } from './SEHandler.js';
 import { gamehandler } from './GameHandler.js';
-import { SDF, getDOM, wait, createNotice, socket } from './utils.js';
+import { SDF, getDOM, wait, createNotice, socket, level_templates } from './utils.js';
   
 socket.on('time', (timeString) => {
 	const el = document.getElementById('server-time');
 	el.innerHTML = 'Server time: ' + timeString;
 });
 
-createNotice('これはまだβ版です。バグがあっても目をつぶってください')
 
 const minesweeper = new Minesweeper;
 
@@ -60,6 +59,8 @@ SDF('forbit_sound', 'click', function() {
 	this.classList.remove('active');
 	getDOM('allow_sound').classList.add('active');
 });
+SDF('fail_img', 'click', () => SE.play('bomb'));
+SDF('victory_img', 'click', () => SE.play('win'))
 
 SDF(g_form, 'change', configValidation);
 SDF(g_form, 'submit', function(e) {
@@ -77,6 +78,17 @@ SDF(g_form, 'submit', function(e) {
 		initiate(j_width, j_height, j_bomb);
 	}
 });
+
+['low', 'medium', 'high', 'duper'].forEach(level => {
+	SDF(`temp_${level}`, 'click', function() {
+		setTemplate(level_templates[level])
+	})
+})
+function setTemplate(array) {
+	f_width.value = array[0];
+	f_height.value = array[1];
+	f_bomb.value = array[2];
+}
 
 async function initiate(width, height, bomb) {
 	// decide #g_field size
