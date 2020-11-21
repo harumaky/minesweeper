@@ -27,30 +27,11 @@ const board = getDOM('board');
 const menu = getDOM('menu');
 
 setDefValue();
-
 function setDefValue() {
 	f_width.value = localStorage.getItem('last_game_width') || 8;
 	f_height.value = localStorage.getItem('last_game_height') || 10;
 	f_bomb.value = localStorage.getItem('last_game_bomb_amount') || 20;
 }
-
-
-SDF(g_form, 'change', configValidation);
-SDF(g_form, 'submit', function(e) {
-	e.preventDefault();
-	e.stopPropagation();
-	const validation = configValidation();
-	if (!validation.isOK) {
-		validation.messages.forEach(msg => {
-			createNotice(msg);
-		});
-	} else {
-		const j_width = parseInt(f_width.value);
-		const j_height = parseInt(f_height.value);
-		const j_bomb = parseInt(f_bomb.value);
-		initiate(j_width, j_height, j_bomb);
-	}
-});
 
 function loadCompleted() {
 	getDOM('loading_wrap').classList.add('slideout')
@@ -80,6 +61,22 @@ SDF('forbit_sound', 'click', function() {
 	getDOM('allow_sound').classList.add('active');
 });
 
+SDF(g_form, 'change', configValidation);
+SDF(g_form, 'submit', function(e) {
+	e.preventDefault();
+	e.stopPropagation();
+	const validation = configValidation();
+	if (!validation.isOK) {
+		validation.messages.forEach(msg => {
+			createNotice(msg);
+		});
+	} else {
+		const j_width = parseInt(f_width.value);
+		const j_height = parseInt(f_height.value);
+		const j_bomb = parseInt(f_bomb.value);
+		initiate(j_width, j_height, j_bomb);
+	}
+});
 
 async function initiate(width, height, bomb) {
 	// decide #g_field size
@@ -179,10 +176,11 @@ function configValidation() {
 		}
 	});
 
-	if(!isBombAmoutOk()) {
+	const bomb_validation = validateBomb();
+	if(!bomb_validation.isOK) {
 		f_bomb.classList.add('warn');
 		result.isOK = false;
-		result.messages.push('爆弾の数は10%~80%にしてください')
+		result.messages.push(bomb_validation.msg)
 	} else {
 		f_bomb.classList.remove('warn');
 	}
@@ -196,13 +194,21 @@ function configValidation() {
 	return result;
 }
 
-function isBombAmoutOk() {
+function validateBomb() {
+	let result = {
+		isOK: true,
+		msg: ''
+	}
 	const size = parseInt(f_width.value) * parseInt(f_height.value);
 	const bomb_amout = parseInt(f_bomb.value);
 	const max = Math.round(size*0.8);
 	const min = Math.round(size*0.1);
-	if (!bomb_amout || max < bomb_amout || min > bomb_amout) return false;
-	return true;
+	if (!bomb_amout || max < bomb_amout || min > bomb_amout) {
+		result.isOK = false;
+		result.msg = `爆弾は${min}以上${max}以下にしてください`
+		return result;
+	}
+	return result;
 }
 
 SDF('open_menu_btn', 'click', function() {
@@ -215,12 +221,9 @@ SDF('close_menu_btn', 'click', function() {
 SDF('exit_btn', 'click', exit)
 function exit() {
 	minesweeper.exit();
-
 	g_wrap.classList.remove('active');
 	menu.classList.remove('active');
-
 	lobby.classList.add('active');
-
 }
 
 document.querySelectorAll('.close_result_modal').forEach(elm => {

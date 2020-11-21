@@ -269,22 +269,20 @@ export class Minesweeper extends EventEmitter {
 	}
 	
 	dig() {
-		if (this.boardArray[this.sel_y][this.sel_x]) {
+		let x = this.sel_x;
+		let y = this.sel_y;
+		if (this.boardArray[y][x]) {
 			this.gameEnd('fail')
 			return;
 		}
 
-		this.diggedArray[this.sel_y][this.sel_x] = true;
-		this.emit('digged');
-		this.emit('changed');
-		this.checkGame();
-	
+		// check whether bigdig is possible
+		// if not, just one dig
+
 		// digAroundIfPossible
-		let bigdigPossible = this.numsArray[this.sel_y][this.sel_x] === 0;
+		let bigdigPossible = this.numsArray[y][x] === 0;
 		if (bigdigPossible) {
 			// only possible when there's no flag around it
-			let x = this.sel_x;
-			let y = this.sel_y;
 			if (y > 0) {
 				if (this.flagArray[y-1][x-1] || this.flagArray[y-1][x] || this.flagArray[y-1][x]) bigdigPossible = false;
 			}
@@ -292,12 +290,18 @@ export class Minesweeper extends EventEmitter {
 			if (y < this.height-1) {
 				if (this.flagArray[y+1][x-1] || this.flagArray[y+1][x] || this.flagArray[y+1][x+1]) bigdigPossible = false;
 			}
-			if (bigdigPossible) {
-				this.emit('bigdiged');
-				this.digAround(x, y);
-			}
 		}
-	
+		
+		if (bigdigPossible) {
+			this.digAround(x, y);
+			this.emit('bigdiged');
+		} else {
+			this.diggedArray[y][x] = true;
+			this.emit('digged');
+			this.emit('changed');
+			this.checkGame();
+		}
+		
 		this.unselect();
 	}
 

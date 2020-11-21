@@ -58,17 +58,25 @@
 }
 .notice {
 	display: flex;
-	
 	min-width: 50px;
 	background: rgba(255,255,255,0.96);
 	border-radius: 10px;
 	overflow: hidden;
+	animation: hide 1s ease-in 5s 1 normal both;
+	/* jsで6秒後に削除 */
+}
+@keyframes hide {
+	0% {opacity: 1;}
+	100% {
+		display: none;
+		opacity: 0;
+	} 
 }
 .notice:not(:last-child) {
 	margin-bottom: 10px;
 }
 .notice_msg {
-	padding: 0 5px;
+	padding: 5px 8px;
 	align-self: center;
 	width: 70%;
 	word-wrap: break-word;
@@ -515,7 +523,6 @@ input.warn {
 #sel_cancel {
 	background-image: url('../img/del.png');
 }
-
 
 .modal_wrap {
 	position: absolute;

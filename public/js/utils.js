@@ -56,17 +56,28 @@ export function getDOM(id) {
  * add notice
  * @param {*} msg 
  */
+let notice_id = 0;
 export function createNotice(msg) {
 	const tmp = getDOM('notice_tmp');
 	const wrap = getDOM('notice_wrap');
 	const clone = tmp.content.cloneNode(true);
+	const body = clone.querySelector('.notice');
+	body.setAttribute('id', `notice_${notice_id}`);
 	const msg_elm = clone.querySelector('.notice_msg');
 	const close_btn = clone.querySelector('.notice_close');
 	msg_elm.textContent = msg;
 	close_btn.addEventListener('click', function() {
-		wrap.removeChild(this.parentNode);
+		wrap.removeChild(body);
 	})
+	setTimeout(() => {
+		try {
+			wrap.removeChild(body);
+		} catch(e) {
+			console.log('既に削除された通知を自動削除しようとした');
+		}
+	}, 6000);
 	wrap.appendChild(clone);
+	notice_id++;
 }
 
 
