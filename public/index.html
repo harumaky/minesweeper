@@ -32,7 +32,7 @@
 	<div class="screen" id="screen">
 		<div class="notice_wrap" id="notice_wrap"></div>
 		<div class="lobby active" id="lobby">
-			<h1 class="title text-grow">Super Duper Minesweeper!<span class="version text-grow" id="version">0.1.0β</span></h1>
+			<h1 class="title text-grow" id="main-title">Super Duper Minesweeper!<span class="version text-grow" id="version">0.1.0β</span></h1>
 
 			<form id="user_form" class="user_form active">
 				<p>ユーザー名を設定してください</p>
@@ -86,10 +86,10 @@
 				<div class="room_card_width room_card_elm">幅 </div>
 				<div class="room_card_height room_card_elm">高さ </div>
 				<div class="room_card_bomb room_card_elm">爆弾 </div>
-				<div class="room_card_status room_card_elm waiting">待機中</div>
+				<div class="room_card_status room_card_elm"></div>
 				<div class="room_card_btns">
 					<button class="room_card_join room_card_btn">入室</button>
-					<button class="room_card_observe room_card_btn">観戦</button>
+					<button class="room_card_observe room_card_btn" disabled>観戦</button>
 				</div>
 			</div>
 		</template>
@@ -106,8 +106,20 @@
 		</div>
 
 		<div class="waiting_screen" id="waiting_screen">
+			<button class="waiting_back" id="waiting_back">もどる</button>
 			<h2 class="waiting_screen_title text-grow">プレイヤーが参加するのを待っています...</h2>
-			<p>ルーム名: <span id="waiting_roomname"></span></p>
+			<div class="waiting_screen_body">
+				<p>ルーム名: <span id="waiting_roomname"></span></p>
+			</div>
+		</div>
+
+		<div class="ready_screen" id="ready_screen">
+			<h2 class="ready_screen_title text-grow">マッチが完了しました。</h2>
+			<div class="ready_screen_body">
+				<p>相手: <span id="ready_screen_opponent"></span></p>
+				<p><span id="game_start_in"></span>秒後に開始します</p>
+				<p>※はじめのマスは自動でクリックされます</p>
+			</div>
 		</div>
 
 		<!-- start g_wrap -->

@@ -55,14 +55,16 @@ export function getDOM(id) {
 /**
  * add notice
  * @param {*} msg 
+ * @param {boolean} important default: false
  */
 let notice_id = 0;
-export function createNotice(msg) {
+export function createNotice(msg, important = false) {
 	const tmp = getDOM('notice_tmp');
 	const wrap = getDOM('notice_wrap');
 	const clone = tmp.content.cloneNode(true);
 	const body = clone.querySelector('.notice');
 	body.setAttribute('id', `notice_${notice_id}`);
+	if (important) body.classList.add('important');
 	const msg_elm = clone.querySelector('.notice_msg');
 	const close_btn = clone.querySelector('.notice_close');
 	msg_elm.textContent = msg;
@@ -76,7 +78,7 @@ export function createNotice(msg) {
 			console.log('既に削除された通知を自動削除しようとした');
 		}
 	}, 6000);
-	wrap.appendChild(clone);
+	wrap.prepend(clone);
 	notice_id++;
 }
 
@@ -88,6 +90,7 @@ export function createNotice(msg) {
  * arg.width
  * arg.height
  * arg.bomb
+ * arg.status (waiting/ready/ongame)
  */
 export function createRoomCard(arg) {
 	const tmp = getDOM('room_card_tmp');
@@ -95,11 +98,31 @@ export function createRoomCard(arg) {
 	const clone = tmp.content.cloneNode(true);
 	const card = clone.querySelector('.room_card');
 	card.setAttribute('id', `room_card_${arg.id}`);
+	const status = arg.status;
+	card.dataset.status = status;
+	clone.querySelector('.room_card_status').textContent = roomStatusToJP[status];
 	clone.querySelector('.room_card_owner').textContent = arg.owner;
 	clone.querySelector('.room_card_width').textContent += arg.width;
 	clone.querySelector('.room_card_height').textContent += arg.height;
 	clone.querySelector('.room_card_bomb').textContent += arg.bomb;
-	rooms.appendChild(clone);
+	const join_btn = clone.querySelector('.room_card_join');
+	const observe_btn = clone.querySelector('.room_card_observe');
+	join_btn.dataset.roomid = arg.id;
+	join_btn.addEventListener('click', () => {socket.emit('join room', arg.id)});
+	observe_btn.dataset.roomid = arg.id;
+	if (status !== 'waiting') {
+		join_btn.setAttribute('disabled', true);
+	}
+	if (status !== 'ongame') {
+		observe_btn.setAttribute('disabled', true);
+	}
+	rooms.prepend(clone);
+}
+const roomStatusToJP = {
+	waiting: '受付中',
+	ready: 'マッチ完了',
+	ongame: '対戦中',
+	ended: '終了'
 }
 
 export function shuffle(arr) {

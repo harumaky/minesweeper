@@ -15,7 +15,8 @@ const main_options = getDOM('main_options');
 const f_solo = getDOM('main_options_solo');
 const f_multi = getDOM('main_options_multi');
 const room_wrap = getDOM('rooms_wrap');
-const waiting = getDOM('waiting_screen')
+const waiting = getDOM('waiting_screen');
+const ready = getDOM('ready_screen');
 const g_config = getDOM('g_config');
 const f_width = getDOM('conf_width');
 const f_height = getDOM('conf_height');
@@ -30,14 +31,23 @@ const menu = getDOM('menu');
 socket.on('initial info', (data) => {
 	console.log(data);
 	updateUserNumber(data.users)
+	data.rooms.forEach((room) => {
+		createRoomCard(room);
+	});
+	loadCompleted();
+});
+socket.on('disconnect', () => {
+	userid = undefined;
+	createNotice('通信が切断されました');
+})
+socket.on('reconnect', () => {
+	createNotice('通信が再開しました');
+});
+
+SDF('main-title', 'click', function() {
+	socket.emit('debug');
 })
 
-socket.on('users change', (num) => {
-	updateUserNumber(num)
-});
-function updateUserNumber(num) {
-	e_user_number.textContent = num
-}
 
 const SE = new SEHandler();
 SE.load();
@@ -47,7 +57,6 @@ SE.triedLoad(function() {
 	} else {
 		createNotice('音源の読み込みに失敗しました')
 	}
-	loadCompleted();
 });
 SDF('allow_sound', 'click', function() { 
 	SE.allowed = true;
@@ -148,27 +157,86 @@ SDF('create_room', 'click', function() {
 SDF('room_back', 'click', function() {
 	room_wrap.classList.remove('active');
 	main_options.classList.add('active');
-})
+});
 
-createRoomCard({id: 1, owner:"hoge", width: 20, height: 12, bomb: 50});
-createRoomCard({id: 2, owner:"hoge", width: 20, height: 12, bomb: 50});
-createRoomCard({id: 3, owner:"hoge", width: 20, height: 12, bomb: 50});
-createRoomCard({id: 4, owner:"hoge", width: 20, height: 12, bomb: 50});
-createRoomCard({id: 5, owner:"hoge", width: 20, height: 12, bomb: 50});
-createRoomCard({id: 6, owner:"hoge", width: 20, height: 12, bomb: 50});
-createRoomCard({id: 7, owner:"hoge", width: 20, height: 12, bomb: 50});
-createRoomCard({id: 8, owner:"hoge", width: 20, height: 12, bomb: 50});
-createRoomCard({id: 9, owner:"hoge", width: 20, height: 12, bomb: 50});
-createRoomCard({id: 10, owner:"hoge", width: 20, height: 12, bomb: 50});
-createRoomCard({id: 11, owner:"hoge", width: 20, height: 12, bomb: 50});
-
+// create/destroy room
+let myroom = undefined;
 function createRoom(owner, width, height, bomb) {
+	if (myroom !== undefined) {
+		console.error("既にルームが作成されていて、消されていません");
+		return;
+	}
+
+	const data = {owner: owner, width: width, height: height, bomb: bomb}
+	socket.emit('create room', data);
+
 	closeGameConfig('multi');
 	room_wrap.classList.remove('active');
-	getDOM('waiting_roomname').textContent = owner;
 	waiting.classList.add('active');
+}
 
-	// do socket
+socket.on('created your room', (room) => {
+	myroom = room;
+	getDOM('waiting_roomname').textContent = room.owner;
+});
+
+SDF('waiting_back', 'click', () => {
+	socket.emit('destroy room', myroom.id);
+	waiting.classList.remove('active');
+	room_wrap.classList.add('active');
+});
+
+socket.on('destroyed your room', (id) => {
+	myroom = undefined;
+	createNotice(`あなたのルームは削除されました`);
+})
+
+socket.on('room added', (data) => {createRoomCard(data);});
+socket.on('room removed', (id) => {
+	getDOM(`room_card_${id}`).remove();
+});
+socket.on('your room removed', () => {
+	createNotice('あなたの相手が切断しました', true);
+})
+
+// join the room
+// emit-join is defined in createRoomCard()
+socket.on('room matched', (id) => {
+	const card = getDOM(`room_card_${id}`);
+	const status = card.querySelector('.room_card_status');
+	status.textContent = 'マッチ完了';
+	card.dataset.status = 'ready';
+	card.querySelector('.room_card_join').setAttribute('disabled', true);
+})
+
+socket.on('you got matched', (room) => {
+	createNotice('マッチ成立！');
+	const isOwner = room.id === socket.id;
+	const opponent = isOwner ? room.player : room.owner;
+	getDOM('ready_screen_opponent').textContent = opponent;
+	if (isOwner) {
+		waiting.classList.remove('active');
+	} else {
+		room_wrap.classList.remove('active');
+	}
+	ready.classList.add('active');
+
+	const time = getDOM('game_start_in');
+	time.textContent = 5;
+	let count = 4;
+	const countdownID = setInterval(() => {
+		time.textContent = count;
+		count--;
+		if (count < 0) {
+			clearInterval(countdownID);
+			startMulti();
+		}
+	}, 1000);
+	
+});
+
+function startMulti() {
+	createNotice('GameStart!')
 }
 
 // game form
@@ -382,4 +450,12 @@ document.querySelectorAll('.restart_btn').forEach(elm => {
 		});
 		minesweeper.exit();
 	})
-})
+});
+
+
+socket.on('users change', (num) => {
+	updateUserNumber(num)
+});
+function updateUserNumber(num) {
+	e_user_number.textContent = num
+}

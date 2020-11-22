@@ -101,6 +101,10 @@
 	animation: hide 1s ease-in 5s 1 normal both;
 	/* jsで6秒後に削除 */
 }
+.notice.important {
+	background: rgba(255, 161, 161, 0.96);
+	border: rgba(245, 45, 45, 0.96) solid 3px;
+}
 @keyframes hide {
 	0% {opacity: 1;}
 	100% {
@@ -336,9 +340,16 @@ input.warn {
 .room_card_owner {
 	color: tomato;
 }
-.room_card_status.waiting {
+[data-status='waiting'] .room_card_status{
 	color: rgb(19, 183, 233);
 }
+[data-status='ready'] .room_card_status{
+	color: rgb(34, 187, 34);
+}
+[data-status='ongame'] .room_card_status{
+	color: rgb(233, 64, 64);
+}
+
 .room_card_btns {
 	margin-left: auto;
 }
@@ -351,22 +362,27 @@ input.warn {
 }
 
 
-/* waiting */
-.waiting_screen {
+/* waiting/ready */
+.waiting_screen, .ready_screen {
 	width: 90%;
 	text-align: center;
 	padding: 30px 0;
 	display: none;
 	margin: 0 auto;
 }
-.waiting_screen p {
-	background: white;
-	padding: 10px;
+.waiting_screen_body, .ready_screen_body {
+	background: rgba(255, 255, 255, 0.8);
 	font-size: 18px;
+	padding-top: 10px;
+	border-radius: 20px;
 }
-.waiting_screen.active {
+.waiting_screen p, .ready_screen p {
+	padding-bottom: 10px;
+}
+.waiting_screen.active, .ready_screen.active {
 	display: block;
 }
+
 
 /* game screen */
 .g_wrap {
