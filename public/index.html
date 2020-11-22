@@ -32,12 +32,29 @@
 	<div class="screen" id="screen">
 		<div class="notice_wrap" id="notice_wrap"></div>
 		<div class="lobby active" id="lobby">
-			<h1 class="title">Super Duper Minesweeper!<span class="version" id="version">0.1.0β</span></h1>
-			
-			<h2 id="server-time"></h2>
+			<h1 class="title text-grow">Super Duper Minesweeper!<span class="version text-grow" id="version">0.1.0β</span></h1>
 
-			<form id="g_form" class="g_form">
-				<div class="g_form_inputs">
+			<form id="user_form" class="user_form active">
+				<p>ユーザー名を設定してください</p>
+				<div class="input_group">
+					<input type="text" id="conf_user_name" required>
+				</div>
+				
+				<button type="submit" class="main-btn text-grow box-grow">Login</button>
+			</form>
+
+			<div class="main_options" id="main_options">
+				<button class="main-btn text-grow box-grow" id="main_options_solo">ソロプレイ</button>
+				<button class="main-btn text-grow box-grow" id="main_options_multi">マルチプレイ</button>
+			</div>
+
+			<form id="g_config" class="g_config">
+				<div class="g_config_head">
+					<button type="button" class="g_config_back" id="g_config_back">もどる</button>
+					<h2 id="g_config_title" class="g_config_title text-grow"></h2>
+				</div>
+
+				<div class="g_config_inputs">
 					<div class="input_group">
 						<span class="input_text">幅</span>
 						<input type="number" id="conf_width" value="8" max="50" min="6" required>
@@ -51,16 +68,36 @@
 						<input type="number" id="conf_bomb" value="20" required>
 					</div>
 				</div>
-				<div class="g_form_templates">
+				<div class="g_config_templates">
 					<button type="button" id="temp_low">低</button>
 					<button type="button" id="temp_medium">中</button>
 					<button type="button" id="temp_high">高</button>
 					<button type="button" id="temp_duper">Duper</button>
 				</div>
-				<div class="input-group">
-					<button type="submit" class="btn start-btn">Start</button>
+				<div class="input_group">
+					<button type="submit" class="main-btn text-grow box-grow" id="g_config_submit"></button>
 				</div>
 			</form>
+		</div>
+
+		<template>
+			<div class="room_card">
+				<div class="room_owner"></div>
+				<div class="room_width"></div>
+				<div class="room_height"></div>
+				<div class="room_bomb"></div>
+				<button class="room_join">入室</button>
+				<button class="room_observe">観戦</button>
+			</div>
+		</template>
+		<div class="rooms" id="rooms_wrap">
+			<div class="rooms_head">
+				<h2>マルチ一覧</h2>
+				<button>ルーム作成</button>
+			</div>
+			<div class="rooms_body" id="rooms">
+				<!-- inserted/deleted by js -->
+			</div>
 		</div>
 
 		<div class="g_wrap" id="g_wrap">
@@ -143,6 +180,12 @@
 				</div>
 			</div>
 		</div>
+
+	
+		<div class="user_number">
+			<span id="user_number"></span>人がログインしています
+		</div>
+		<span class="bottom_username" id="bottom_username"></span>
 	</div>
 
 	<script>

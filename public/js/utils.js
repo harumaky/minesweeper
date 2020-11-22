@@ -117,3 +117,58 @@ export const level_templates = {
 	high: [24, 20, 99],
 	duper: [36, 30, 270]
 }
+
+export function loadCompleted() {
+	getDOM('loading_wrap').classList.add('slideout')
+}
+export function loadStart() {
+	getDOM('loading_wrap').classList.remove('slideout')
+}
+
+class RandomTextGenerator {
+	constructor() {
+		this.strCodes = {
+			ja : [
+				{ //hiragana
+					start: 0x3041,
+					end: 0x3094
+				},
+				{ //katakana
+					start: 0x30a1,
+					end: 0x30f4
+				}
+			],
+			en: {
+				start: 0x021,
+				end: 0x07E
+			}
+		};
+	}
+	checkType(type, obj) {
+		let clas = Object.prototype.toString.call(obj).slice(8, -1);
+		return obj !== undefined && obj !== null && clas === type;
+	};
+	getString(langCode) {
+		langCode = langCode || 'ja';
+		let lang = this.strCodes[langCode], result = [];
+		if(this.checkType('Array', lang)){
+			let i = 0, length = lang.length;
+			for(; i < length; i += 1){
+				result.push( String.fromCharCode( Math.floor( Math.random() * (lang[i].end - lang[i].start + 1 ) + lang[i].start ) ) );
+			}
+			result = result[ Math.floor(Math.random() * result.length)].replace(/\s/g, '');
+		}else{
+			result = String.fromCharCode( Math.floor( Math.random() * ( lang.end - lang.start + 1 ) ) );
+		}
+		return result.toString();
+	};
+	getStrings(langCode, length) {
+		length = length || 1;
+		let i = 0, result = [];
+		for(; i < length; i += 1){
+			result.push(this.getString(langCode));
+		}
+		return result.join('');
+	};
+};
+export const randTextGenerator = new RandomTextGenerator();

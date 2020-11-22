@@ -1,3 +1,39 @@
+.text-grow {
+	text-shadow: 
+		0 0 0.05em #FFF59D,
+		0 0 0.06em #FFF59D,
+		0 0 0.07em #FFF59D,
+		0 0 0.08em #FFF59D,
+		0 0 0.09em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.50em #FFF59D;
+}
+.box-grow {
+	box-shadow:
+		0 0 0.05em #FFF59D,
+		0 0 0.06em #FFF59D,
+		0 0 0.07em #FFF59D,
+		0 0 0.08em #FFF59D,
+		0 0 0.09em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.20em #FFF59D,
+		0 0 0.50em #FFF59D;
+}
+.main-btn {
+	width: 300px;
+	font-size: 2.6rem;
+	background: rgba(255,255,255, 0.3);
+	font-weight: bold;
+	margin: 0 auto;
+}
+.main-btn:hover {
+	opacity: 0.6;
+	transition: all 0.8s;
+}
+
 .loading_wrap {
 	position: absolute;
 	display: flex;
@@ -123,16 +159,6 @@
 	font-weight:bold;
 	color: #000;
 	position: relative;
-	text-shadow: 
-		0 0 0.05em #FFF59D,
-		0 0 0.06em #FFF59D,
-		0 0 0.07em #FFF59D,
-		0 0 0.08em #FFF59D,
-		0 0 0.09em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.50em #FFF59D;
 }
 .version {
 	font-size: 1.4rem;
@@ -153,12 +179,46 @@
 	}
 }
 
-.g_form {
+/* forms (username, mainoptions, gameconfig/roomconfig) */
+.g_config, .user_form, .main_options {
+	display: none;
 	text-align: center;
 	padding-top: 30px;
+	padding-bottom: 20px;
+}
+.user_form.active, .g_config.active, .main_options.active {
+	display: block;
 }
 
-.g_form_inputs, .g_form_templates {
+.user_form {
+	background: rgba(255,255,255,0.6);
+	width: 90%;
+	max-width: 400px;
+	margin: 0 auto;
+	margin-bottom: 30px;
+	overflow: hidden;
+	border-radius: 10px;
+	text-align: center;
+}
+.user_form p {
+	padding: 1rem 2rem;
+	font-size: 1.4rem;
+	margin-bottom: 6px;
+	border-top: 3px dotted #000;
+	border-bottom: 3px dotted #000;
+}
+.user_form > .input_group {
+	padding: 20px 0;
+}
+.user_form input {
+	border: 2px solid #333;
+}
+
+.main_options > button {
+	margin-bottom: 20px;
+}
+
+.g_config_inputs, .g_config_templates, .g_config_head {
 	width: 90%;
 	max-width: 400px;
 	margin: 0 auto;
@@ -168,12 +228,27 @@
 	justify-content: center;
 	border-radius: 10px;
 }
-.g_form_templates {
+.g_config_head {
+	border-radius: unset;
+	position: relative;
+}
+.g_config_head h2 {
+	font-size: 28px;
+	line-height: 28px;
+	margin-bottom: 0;
+}
+.g_config_back {
+	position: absolute;
+	top: 0; left: 0;
+	height: 28px;
+}
+.g_config_templates {
 	width: fit-content;
 }
 .input_group {
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	width: 100%;
 }
 .input_group > .input_text {
@@ -186,7 +261,7 @@
 	background: #ddd;
 	box-sizing: border-box;
 }
-.g_form_inputs input {
+.g_config_inputs input {
 	display: inline-block;
 	width: 100%;
 	min-width: 50px;
@@ -204,45 +279,17 @@ input.warn {
     100% {transform: translate(0px, 0px) rotateZ(0deg)}
 }
 
-.g_form_templates > button {
+.g_config_templates > button {
 	margin: 0;
 	font-size: 1.4rem;
 	padding: 6px 12px;
 	border-radius: 0;
 }
 
-.start-btn {
-	width: 300px;
-	font-size: 2.6rem;
-	background: rgba(255,255,255, 0.3);
-	font-weight: bold;
-	margin: 0 auto;
-	text-shadow: 
-		0 0 0.05em #FFF59D,
-		0 0 0.06em #FFF59D,
-		0 0 0.07em #FFF59D,
-		0 0 0.08em #FFF59D,
-		0 0 0.09em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.50em #FFF59D;
-	box-shadow:
-		0 0 0.05em #FFF59D,
-		0 0 0.06em #FFF59D,
-		0 0 0.07em #FFF59D,
-		0 0 0.08em #FFF59D,
-		0 0 0.09em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.50em #FFF59D;
-}
-.start-btn:hover {
-	opacity: 0.6;
-	transition: all 0.8s;
-}
 
+
+
+/* game screen */
 .g_wrap {
 	display: none;
 	opacity: 0;
@@ -664,7 +711,16 @@ input.warn {
 	background: white;
 }
 
-
+.user_number, .bottom_username {
+	position: absolute;
+	bottom: 10px;
+	left: 10px;
+	color: white;
+}
+.bottom_username {
+	left: unset;
+	right: 10px;
+}
 @media screen and (max-width:480px) {
 	.title {
 		font-size: 3rem;

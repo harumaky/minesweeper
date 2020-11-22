@@ -1,5 +1,6 @@
 'use strict';
 
+const e = require('express');
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
@@ -9,12 +10,34 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static('public'));
 
 
-io.on('connection', (socket) => {
-	console.log('Client connected');
-	socket.on('disconnect', () => console.log('Client disconnected'));
-});
+let num_users = 0; // logged in users
 
-setInterval(() => io.emit('time', new Date().toTimeString()), 1000);
+io.on('connection', (socket) => {
+	console.log(`Connected client id ${socket.id}`);
+	let isLoggedin = false;
+
+	socket.emit('initial info', {
+		users: num_users
+	});
+
+	socket.on('login', (username) => {
+		isLoggedin = true;
+		num_users++;
+		socket.username = username;
+		console.log(`login ${username}`);
+		io.emit('users change', num_users)
+
+	})
+
+	socket.on('disconnect', () => {
+		console.log(`Disconnected client id ${socket.id}`);
+		if (isLoggedin) {
+			num_users--;
+			console.log(`logout ${socket.username}`);
+			io.emit('users change', num_users)
+		}
+	});
+});
 
 server.listen(PORT, () => {
 	console.log(`Listening on ${PORT}`);

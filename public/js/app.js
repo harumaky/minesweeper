@@ -2,19 +2,19 @@
 import { Minesweeper } from './minesweeper.js';
 import { SEHandler } from './SEHandler.js';
 import { gamehandler } from './GameHandler.js';
-import { SDF, getDOM, wait, createNotice, socket, level_templates } from './utils.js';
-  
-socket.on('time', (timeString) => {
-	const el = document.getElementById('server-time');
-	el.innerHTML = 'Server time: ' + timeString;
-});
-
+import { SDF, getDOM, wait, createNotice, socket, level_templates, loadCompleted, loadStart, randTextGenerator } from './utils.js';
 
 const minesweeper = new Minesweeper;
 
 const screen = getDOM('screen');
 const lobby = getDOM('lobby');
-const g_form = getDOM('g_form');
+const e_user_number = getDOM('user_number');
+const user_form = getDOM('user_form')
+const f_username = getDOM('conf_user_name');
+const main_options = getDOM('main_options');
+const f_solo = getDOM('main_options_solo');
+const f_multi = getDOM('main_options_multi');
+const g_config = getDOM('g_config');
 const f_width = getDOM('conf_width');
 const f_height = getDOM('conf_height');
 const f_bomb = getDOM('conf_bomb');
@@ -25,18 +25,16 @@ const b_wrap = getDOM('b_wrap');
 const board = getDOM('board');
 const menu = getDOM('menu');
 
-setDefValue();
-function setDefValue() {
-	f_width.value = localStorage.getItem('last_game_width') || 8;
-	f_height.value = localStorage.getItem('last_game_height') || 10;
-	f_bomb.value = localStorage.getItem('last_game_bomb_amount') || 20;
-}
+socket.on('initial info', (data) => {
+	console.log(data);
+	updateUserNumber(data.users)
+})
 
-function loadCompleted() {
-	getDOM('loading_wrap').classList.add('slideout')
-}
-function loadStart() {
-	getDOM('loading_wrap').classList.remove('slideout')
+socket.on('users change', (num) => {
+	updateUserNumber(num)
+});
+function updateUserNumber(num) {
+	e_user_number.textContent = num
 }
 
 const SE = new SEHandler();
@@ -60,10 +58,93 @@ SDF('forbit_sound', 'click', function() {
 	getDOM('allow_sound').classList.add('active');
 });
 SDF('fail_img', 'click', () => SE.play('bomb'));
-SDF('victory_img', 'click', () => SE.play('win'))
+SDF('victory_img', 'click', () => SE.play('win'));
 
-SDF(g_form, 'change', configValidation);
-SDF(g_form, 'submit', function(e) {
+// user form
+let username = localStorage.getItem('username');
+if (username !== null) {
+	user_form.classList.remove('active');
+	main_options.classList.add('active');
+	login(username);
+} else {
+	// set random name in conf_use_name
+	f_username.value = randTextGenerator.getStrings('ja', 5);
+	SDF(f_username, 'click', function() {this.value = ''});
+}
+SDF(user_form, 'submit', function(e) {
+	e.preventDefault();
+	e.stopPropagation();
+	const name = f_username.value;
+	if (name.length < 2 || name.length > 10) {
+		createNotice('名前は2文字以上10文字以内にしてください');
+		f_username.classList.add('warn')
+	} else {
+		username = name;
+		localStorage.setItem('username', name);
+		login(username);
+		f_username.classList.remove('warn')
+		user_form.classList.remove('active');
+		main_options.classList.add('active');
+	}
+});
+function login(name) {
+	socket.emit('login', name)
+	getDOM('bottom_username').textContent = name;
+}
+
+// main options (solo or multi)
+SDF(f_solo, 'click', function() {
+	main_options.classList.remove('active');
+	openGameConfig('solo')
+});
+SDF(f_multi, 'click', function() {
+	main_options.classList.remove('active');
+	openGameConfig('multi')
+});
+
+function openGameConfig(type) {
+	const title = getDOM('g_config_title');
+	const submit = getDOM('g_config_submit');
+	const back = getDOM('g_config_back');
+	back.addEventListener('click', function() { closeGameConfig(type) }, {
+		once: true
+	})
+	if (type === 'solo') {
+		title.textContent = 'ソロプレイ';
+		submit.textContent = 'Start';
+		
+	} else if (type === 'multi') {
+		title.textContent = 'マルチ設定';
+		submit.textContent = '設定完了';
+	} else {
+		console.error('不明なタイプで設定画面を開こうとしました');
+		return;
+	}
+	g_config.classList.add('active')
+}
+function closeGameConfig(type) {
+	if (type === 'solo') {
+		g_config.classList.remove('active');
+		main_options.classList.add('active');
+	} else if (type === 'multi') {
+		g_config.classList.remove('active');
+		// activate some elm
+		main_options.classList.add('active'); // <- will alter
+	} else {
+		console.error('不明なタイプで設定画面を閉じようとしました');
+		return;
+	}
+}
+
+// game form
+setDefValue();
+function setDefValue() {
+	f_width.value = localStorage.getItem('last_game_width') || 8;
+	f_height.value = localStorage.getItem('last_game_height') || 10;
+	f_bomb.value = localStorage.getItem('last_game_bomb_amount') || 20;
+}
+SDF(g_config, 'change', configValidation);
+SDF(g_config, 'submit', function(e) {
 	e.preventDefault();
 	e.stopPropagation();
 	const validation = configValidation();
@@ -89,6 +170,7 @@ function setTemplate(array) {
 	f_height.value = array[1];
 	f_bomb.value = array[2];
 }
+
 
 async function initiate(width, height, bomb) {
 	// decide #g_field size
