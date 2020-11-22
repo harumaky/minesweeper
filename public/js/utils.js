@@ -80,6 +80,27 @@ export function createNotice(msg) {
 	notice_id++;
 }
 
+/**
+ * create room card (not room)
+ * @param {*} arg
+ * arg.id
+ * arg.owner
+ * arg.width
+ * arg.height
+ * arg.bomb
+ */
+export function createRoomCard(arg) {
+	const tmp = getDOM('room_card_tmp');
+	const rooms = getDOM('rooms');
+	const clone = tmp.content.cloneNode(true);
+	const card = clone.querySelector('.room_card');
+	card.setAttribute('id', `room_card_${arg.id}`);
+	clone.querySelector('.room_card_owner').textContent = arg.owner;
+	clone.querySelector('.room_card_width').textContent += arg.width;
+	clone.querySelector('.room_card_height').textContent += arg.height;
+	clone.querySelector('.room_card_bomb').textContent += arg.bomb;
+	rooms.appendChild(clone);
+}
 
 export function shuffle(arr) {
 	for (let i = arr.length - 1; i >= 0; i--) {

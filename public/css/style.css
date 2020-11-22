@@ -286,8 +286,87 @@ input.warn {
 	border-radius: 0;
 }
 
+/* rooms */
+.rooms {
+	display: none;
+	background: white;
+	border-radius: 20px;
+	padding: 10px;
+	width: 90%;
+	min-width: 300px;
+	height: 60%;
+	margin: 30px auto 0;
+	color: #333;
+}
+.rooms_head {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 10px;
+	height: 50px;
+}
+.rooms_head > button {
+	background: transparent;
+	border: 1px solid #333;
+	border-radius: 20px;
+	margin: 0;
+}
+
+.rooms.active {display: block;}
+
+.rooms_overflowwrap {
+	height: calc(100% - 60px);
+	overflow-y: auto;
+}
+.rooms_body {
+	width: 100%;
+}
+
+.room_card {
+	display: flex;
+	flex-wrap: wrap;
+	padding: 10px;
+	border-radius: 20px;
+	border: 1px solid #333;
+	margin-bottom: 10px;
+}
+.room_card_elm {
+	padding: 0 10px;
+}
+.room_card_owner {
+	color: tomato;
+}
+.room_card_status.waiting {
+	color: rgb(19, 183, 233);
+}
+.room_card_btns {
+	margin-left: auto;
+}
+.room_card_btn {
+	margin: 0 10px;
+	display: inline-block;
+}
+.room_card_btn:disabled, .room_card_btn:disabled:hover {
+	opacity: 0.6;
+}
 
 
+/* waiting */
+.waiting_screen {
+	width: 90%;
+	text-align: center;
+	padding: 30px 0;
+	display: none;
+	margin: 0 auto;
+}
+.waiting_screen p {
+	background: white;
+	padding: 10px;
+	font-size: 18px;
+}
+.waiting_screen.active {
+	display: block;
+}
 
 /* game screen */
 .g_wrap {
@@ -724,6 +803,14 @@ input.warn {
 @media screen and (max-width:480px) {
 	.title {
 		font-size: 3rem;
+		margin-bottom: 0;
+	}
+	.main_options {
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+	.rooms {
+		margin-top: 10px;
 	}
 	.modal {
 		margin-top: 30px;

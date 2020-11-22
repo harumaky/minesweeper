@@ -80,26 +80,37 @@
 			</form>
 		</div>
 
-		<template>
+		<template id="room_card_tmp">
 			<div class="room_card">
-				<div class="room_owner"></div>
-				<div class="room_width"></div>
-				<div class="room_height"></div>
-				<div class="room_bomb"></div>
-				<button class="room_join">入室</button>
-				<button class="room_observe">観戦</button>
+				<div class="room_card_owner room_card_elm"></div>
+				<div class="room_card_width room_card_elm">幅 </div>
+				<div class="room_card_height room_card_elm">高さ </div>
+				<div class="room_card_bomb room_card_elm">爆弾 </div>
+				<div class="room_card_status room_card_elm waiting">待機中</div>
+				<div class="room_card_btns">
+					<button class="room_card_join room_card_btn">入室</button>
+					<button class="room_card_observe room_card_btn">観戦</button>
+				</div>
 			</div>
 		</template>
 		<div class="rooms" id="rooms_wrap">
 			<div class="rooms_head">
-				<h2>マルチ一覧</h2>
-				<button>ルーム作成</button>
+				<button class="rooms_head_back" id="room_back">もどる</button>
+				<h2 class="rooms_head_title">ルーム</h2>
+				<button class="rooms_head_create" id="create_room">ルーム作成</button>
 			</div>
-			<div class="rooms_body" id="rooms">
-				<!-- inserted/deleted by js -->
+			<div class="rooms_overflowwrap">
+				<div class="rooms_body" id="rooms">
+				</div>
 			</div>
 		</div>
 
+		<div class="waiting_screen" id="waiting_screen">
+			<h2 class="waiting_screen_title text-grow">プレイヤーが参加するのを待っています...</h2>
+			<p>ルーム名: <span id="waiting_roomname"></span></p>
+		</div>
+
+		<!-- start g_wrap -->
 		<div class="g_wrap" id="g_wrap">
 			<div class="g_field" id="g_field">
 				
@@ -155,6 +166,7 @@
 
 		</div>
 		<!-- end g_wrap -->
+
 		<div class="result_modal modal_wrap" id="clear_modal">
 			<div class="clear_modal modal">
 				<div class="result">

@@ -2,7 +2,7 @@
 import { Minesweeper } from './minesweeper.js';
 import { SEHandler } from './SEHandler.js';
 import { gamehandler } from './GameHandler.js';
-import { SDF, getDOM, wait, createNotice, socket, level_templates, loadCompleted, loadStart, randTextGenerator } from './utils.js';
+import { SDF, getDOM, wait, createNotice, createRoomCard, socket, level_templates, loadCompleted, loadStart, randTextGenerator } from './utils.js';
 
 const minesweeper = new Minesweeper;
 
@@ -14,6 +14,8 @@ const f_username = getDOM('conf_user_name');
 const main_options = getDOM('main_options');
 const f_solo = getDOM('main_options_solo');
 const f_multi = getDOM('main_options_multi');
+const room_wrap = getDOM('rooms_wrap');
+const waiting = getDOM('waiting_screen')
 const g_config = getDOM('g_config');
 const f_width = getDOM('conf_width');
 const f_height = getDOM('conf_height');
@@ -95,11 +97,11 @@ function login(name) {
 // main options (solo or multi)
 SDF(f_solo, 'click', function() {
 	main_options.classList.remove('active');
-	openGameConfig('solo')
+	openGameConfig('solo');
 });
 SDF(f_multi, 'click', function() {
 	main_options.classList.remove('active');
-	openGameConfig('multi')
+	room_wrap.classList.add('active');
 });
 
 function openGameConfig(type) {
@@ -110,12 +112,14 @@ function openGameConfig(type) {
 		once: true
 	})
 	if (type === 'solo') {
+		g_config.classList.add('solo');
 		title.textContent = 'ソロプレイ';
 		submit.textContent = 'Start';
 		
 	} else if (type === 'multi') {
+		g_config.classList.add('multi');
 		title.textContent = 'マルチ設定';
-		submit.textContent = '設定完了';
+		submit.textContent = 'ルーム作成';
 	} else {
 		console.error('不明なタイプで設定画面を開こうとしました');
 		return;
@@ -125,15 +129,46 @@ function openGameConfig(type) {
 function closeGameConfig(type) {
 	if (type === 'solo') {
 		g_config.classList.remove('active');
+		g_config.classList.remove('solo');
 		main_options.classList.add('active');
 	} else if (type === 'multi') {
 		g_config.classList.remove('active');
-		// activate some elm
-		main_options.classList.add('active'); // <- will alter
+		g_config.classList.remove('multi');
+		room_wrap.classList.add('active')
 	} else {
 		console.error('不明なタイプで設定画面を閉じようとしました');
-		return;
 	}
+}
+
+// rooms
+SDF('create_room', 'click', function() {
+	room_wrap.classList.remove('active');
+	openGameConfig('multi')
+})
+SDF('room_back', 'click', function() {
+	room_wrap.classList.remove('active');
+	main_options.classList.add('active');
+})
+
+createRoomCard({id: 1, owner:"hoge", width: 20, height: 12, bomb: 50});
+createRoomCard({id: 2, owner:"hoge", width: 20, height: 12, bomb: 50});
+createRoomCard({id: 3, owner:"hoge", width: 20, height: 12, bomb: 50});
+createRoomCard({id: 4, owner:"hoge", width: 20, height: 12, bomb: 50});
+createRoomCard({id: 5, owner:"hoge", width: 20, height: 12, bomb: 50});
+createRoomCard({id: 6, owner:"hoge", width: 20, height: 12, bomb: 50});
+createRoomCard({id: 7, owner:"hoge", width: 20, height: 12, bomb: 50});
+createRoomCard({id: 8, owner:"hoge", width: 20, height: 12, bomb: 50});
+createRoomCard({id: 9, owner:"hoge", width: 20, height: 12, bomb: 50});
+createRoomCard({id: 10, owner:"hoge", width: 20, height: 12, bomb: 50});
+createRoomCard({id: 11, owner:"hoge", width: 20, height: 12, bomb: 50});
+
+function createRoom(owner, width, height, bomb) {
+	closeGameConfig('multi');
+	room_wrap.classList.remove('active');
+	getDOM('waiting_roomname').textContent = owner;
+	waiting.classList.add('active');
+
+	// do socket
 }
 
 // game form
@@ -152,12 +187,20 @@ SDF(g_config, 'submit', function(e) {
 		validation.messages.forEach(msg => {
 			createNotice(msg);
 		});
-	} else {
-		const j_width = parseInt(f_width.value);
-		const j_height = parseInt(f_height.value);
-		const j_bomb = parseInt(f_bomb.value);
+		return;
+	} 
+	const j_width = parseInt(f_width.value);
+	const j_height = parseInt(f_height.value);
+	const j_bomb = parseInt(f_bomb.value);
+
+	// solo or multi
+	const gametype = g_config.classList.contains('solo') ? 'solo' : 'multi';
+	if (gametype === 'solo') {
 		initiate(j_width, j_height, j_bomb);
+	} else if (gametype === 'multi') {
+		createRoom(username, j_width, j_height, j_bomb);
 	}
+	
 });
 
 ['low', 'medium', 'high', 'duper'].forEach(level => {
@@ -170,7 +213,6 @@ function setTemplate(array) {
 	f_height.value = array[1];
 	f_bomb.value = array[2];
 }
-
 
 async function initiate(width, height, bomb) {
 	// decide #g_field size
