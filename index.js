@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
 	// data -> owner, W, H, B
 	socket.on('create room', (data) => {
 		if (socket.myroom !== undefined) {
-			log(`既に部屋に所属しているのに作成しようとしました`);
+			log(socket, `既に部屋に所属しているのに作成しようとしました`);
 			return;
 		}
 		const room = new Room(data);
@@ -57,15 +57,13 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('join room', (id) => {
-		const room = rooms.find(item => {
-			return item.id === id;
-		});
+		const room = findRoom(id);
 		if (socket.myroom !== undefined) {
-			log(`既に部屋に所属しているのに別の場所に入ろうとしました`);
+			log(socket, `既に部屋に所属しているのに別の場所に入ろうとしました`);
 			return;
 		}
 		if (room.status !== 'waiting') {
-			log(`既に成立した部屋に入ろうとしました`);
+			log(socket, `既に成立した部屋に入ろうとしました`);
 			return;
 		}
 		room.status = 'matched';
@@ -73,8 +71,8 @@ io.on('connection', (socket) => {
 		room.playerID = socket.id;
 		socket.join(id);
 		socket.myroom = room;
-		io.emit('room matched', id);
 		io.in(id).emit('you got matched', room);
+		io.emit('room matched', id);
 	});
 
 	socket.on('destroy room', (id) => {
@@ -83,6 +81,24 @@ io.on('connection', (socket) => {
 		destroyRoom(id);
 		socket.emit('destroyed your room', id);
 	});
+
+	socket.on('game ready', (id) => {
+		const room = findRoom(id);
+		room.ready++;
+		if (room.ready == 2) {
+			room.status = 'ongame'
+			io.in(id).emit('start your game', room);
+			io.emit('room started', id);
+		}
+	})
+
+	socket.on('game firstdata', (data) => {
+		// const room = findRoom(data.id);
+		socket.to(data.id).emit('opp firstdata', data);
+	})
+	socket.on('board change', (data) => {
+		socket.to(data.id).emit('opp change', data);
+	})
 
 	socket.on('disconnect', () => {
 		if (socket.isLoggedin) {
@@ -105,6 +121,12 @@ function destroyRoom(id) {
 	});
 	io.emit('room removed', id);
 	io.in(id).emit('your room removed');
+}
+
+function findRoom(id) {
+	return rooms.find(item => {
+		return item.id === id;
+	});
 }
 
 function log(socket, msg) {

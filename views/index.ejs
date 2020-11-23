@@ -37,7 +37,7 @@
 			<form id="user_form" class="user_form active">
 				<p>ユーザー名を設定してください</p>
 				<div class="input_group">
-					<input type="text" id="f_user_name" required>
+					<input type="text" id="f_username" required>
 				</div>
 				
 				<button type="submit" class="main-btn text-grow box-grow">Login</button>
@@ -130,7 +130,7 @@
 					<div class="b_head">
 						<div class="b_head_flags_outer b_head_item">
 							<img src="./img/flag.png" alt="" class="b_head_flag_img" width="30px">
-							<p id="h_flags" class="d-inline-block"></p>
+							<p id="h_flags"></p>
 						</div>
 
 						<div class="time b_head_time_outer b_head_item">
@@ -160,19 +160,37 @@
 			</div>
 
 			<div class="menu" id="menu">
-				<button id="close_menu_btn" class="close_menu_btn ">とじる</button>
-				<button class=" quit_btn" id="exit_btn"><span>Exit Game</span></button>
-				<div>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
-					<p>わわわわわわわわわわわ</p>
+				<button id="close_menu_btn" class="close_menu_btn">とじる</button>
+				<button class="quit_btn" id="exit_btn"><span>Exit Game</span></button>
+				<div class="menu_common">
+					<p>ここにはゲームの難易度などが表示される予定です</p>
+				</div>
+
+				<div class="opp_waiting active" id="opp_waiting">
+					<h3>相手の情報を取得しています...</h3>
+				</div>
+				<div class="opp" id="opp">
+					<div class="opp_data">
+						<h3>相手の情報</h3>
+						<p>名前：<span id="opp_name"></span></p>
+						<p>幅：<span id="opp_width"></span>, 高さ：<span id="opp_height"></span></p>
+					</div>
+
+					<h2>相手のボード</h2>
+					<div class="opp_field" id="opp_field">
+						<div class="opp_wrap" id="opp_wrap">
+							<div class="opp_head">
+								<div class="opp_head_flags_outer opp_head_item">
+									<img src="./img/flag.png" alt="" class="b_head_flag_img" width="30px">
+									<p id="opp_flags"></p>
+								</div>
+							</div>
+							
+							<div class="opp_board" id="opp_board"></div>
+						</div>
+		
+					</div>
+
 				</div>
 			</div>
 

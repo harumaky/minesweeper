@@ -402,7 +402,7 @@ input.warn {
 	opacity: 1;
 }
 
-.g_field {
+.g_field, .opp_field {
 	position: relative;
 	margin: 0;
 	width: 100%;
@@ -413,6 +413,9 @@ input.warn {
 	justify-content: center;
 	align-items: center;
 }
+.opp_field {
+	overflow: auto;
+}
 .g_field.style_C {
 	width: 60%;
 }
@@ -422,7 +425,7 @@ input.warn {
 	overflow: hidden;
 }
 
-.b_head {
+.b_head, .opp_head {
 	width: 100%;
 	height: 50px;
 	background: #4A752C;
@@ -432,8 +435,10 @@ input.warn {
 	text-align: center;
 	display: flex;
 }
-.b_head div, .b_head p {display: inline-block;}
-.b_head_item {
+.b_head div, .b_head p, .opp_head div, .opp_head p {
+	display: inline-block;
+}
+.b_head_item, .opp_head_item {
 	height: 50px;
 	overflow: hidden;
 }
@@ -452,6 +457,9 @@ input.warn {
 
 .b_head_flags_outer {
 	flex-grow: 2;
+}
+.opp_head_flags_outer {
+	padding-left: 20px;
 }
 
 .b_head_time_outer {
@@ -491,14 +499,14 @@ input.warn {
 	display: none;
 }
 
-.board {
+.board, .opp_board {
 	width: 100%;
 	display: flex;
 	flex-wrap: wrap;
 	background: grey;
 	transition: all 0.4s;
 }
-.board.failed {
+.board.failed, .opp_board.failed {
 	animation: bomb .3s 5 ease-out;
 }
 @keyframes bomb {
@@ -518,7 +526,7 @@ input.warn {
     100% {transform: translate(0px, 0px)}
 }
 
-.board.failed .bomb {
+.board.failed .bomb, .opp_board.failed .bomb {
 	background: red;
 }
 
@@ -527,6 +535,8 @@ input.warn {
 	height: 100%;
 	background: white;
 	overflow-x: hidden;
+	overflow-y: auto;
+	padding: 20px 10px;
 	overflow-y: auto;
 }
 .menu.style_C {
@@ -572,10 +582,26 @@ input.warn {
 	display: none;
 }
 
+.menu_common {
+	padding: 10px 0;
+}
+
+
+.menu .opp, .menu .opp_waiting {
+	display: none;
+}
+.menu.type_multi .opp_waiting.active {
+	display: block;
+}
+.menu.type_multi .opp.active {
+	display: block;
+}
+
+
 .quit_btn {
 	display: block;
 	margin: 0 auto;
-	margin-bottom: 24px;
+	margin-bottom: 30px;
 	width: 80%;
 	font-size: 2rem;
 	padding: 1rem;

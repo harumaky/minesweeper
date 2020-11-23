@@ -136,10 +136,11 @@ const roomStatusToJP = {
 
 function setElms() {
 	const elm_ids = [
-		'screen', 'lobby', 'user_number', 'user_form', 'main_options', 
+		'screen', 'lobby', 'user_number', 'user_form', 'f_username', 'main_options', 
 		'solo_btn', 'multi_btn', 'rooms_wrap', 'waiting_screen', 'matched_screen', 'g_config', 
 		'f_width', 'f_height', 'f_bomb', 'g_wrap', 'g_field', 'board', 'b_wrap', 
-		'menu', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time'
+		'menu', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time',
+		'opp', 'opp_field', 'opp_name', 'opp_width', 'opp_height', 'opp_flags', 'opp_wrap', 'opp_board', 'opp_waiting'
 	];
 	let elms = {};
 	for (let i = 0; i < elm_ids.length; i++) {
@@ -159,8 +160,11 @@ export function shuffle(arr) {
 export function flatten(data) {
 	return data.reduce((acm, e) => Array.isArray(e) ? acm.concat(flatten(e)) : acm.concat(e), []);
 }
-export function getElmByCoord(x, y) {
-	return document.querySelector(`[data-x='${x}'][data-y='${y}']`);
+export function getElmByCoord(x, y, opp = false) {
+	if (!opp) {
+		return document.querySelector(`.board [data-x='${x}'][data-y='${y}']`);
+	} 
+	return document.querySelector(`.opp_board [data-x='${x}'][data-y='${y}']`);
 }
 
 /**
@@ -191,6 +195,44 @@ export function loadCompleted() {
 }
 export function loadStart() {
 	getDOM('loading_wrap').classList.remove('slideout')
+}
+
+export function isMultiByDOM() {
+	return getDOM('board').classList.contains('multi');
+}
+
+export function openGameConfig(type) {
+	const title = getDOM('g_config_title');
+	const submit = getDOM('g_config_submit');
+	const back = getDOM('g_config_back');
+	back.addEventListener('click', function() { closeGameConfig(type) }, {
+		once: true
+	})
+	if (type === 'solo') {
+		elms.g_config.classList.add('solo');
+		title.textContent = 'ソロプレイ';
+		submit.textContent = 'Start';
+		
+	} else if (type === 'multi') {
+		elms.g_config.classList.add('multi');
+		title.textContent = 'マルチ設定';
+		submit.textContent = 'ルーム作成';
+	}
+	elms.g_config.classList.add('active');
+}
+export function closeGameConfig(type) {
+	if (type === 'solo') {
+		elms.g_config.classList.remove('active');
+		elms.g_config.classList.remove('solo');
+		elms.rooms_wrap.classList.remove('active'); // for some reason
+		elms.main_options.classList.add('active');
+	} else if (type === 'multi') {
+		elms.g_config.classList.remove('active');
+		elms.g_config.classList.remove('multi');
+		elms.rooms_wrap.classList.add('active')
+	} else {
+		console.error('不明なタイプで設定画面を閉じようとしました');
+	}
 }
 
 class RandomTextGenerator {

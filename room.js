@@ -8,8 +8,9 @@ module.exports = class Room {
 		this.bomb = data.bomb;
 		this.created = new Date();
 		this.id = undefined;
-		this.status = 'waiting';
+		this.status = 'waiting'; // /matched/ongame/ended
 		this.player = undefined;
 		this.playerID = undefined;
+		this.ready = 0;
 	}
 }

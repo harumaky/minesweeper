@@ -15,8 +15,9 @@ export class MS extends EventEmitter {
 	 * @param {Number} squareSize 
 	 * @param {String} style screen style (A/B/C)
 	 * @param {String} type solo or multi
+	 * @param {Object} room if multi, send server's room
 	 */
-	init(width, height, bombAmount, squareSize, style, type) {
+	init(width, height, bombAmount, squareSize, style, type, room = {}) {
 		if (this.status === "ongame") return;
 		this.playcount++;
 
@@ -26,6 +27,7 @@ export class MS extends EventEmitter {
 		this.squareSize = squareSize;
 		this.style = style;
 		this.type = type;
+		this.room = room
 
 		this.boardArray = []; // true -> bomb false -> valid
 		this.flagArray = []; // true -> flagged
@@ -81,6 +83,13 @@ export class MS extends EventEmitter {
 		setStyleSquare(elms.sel_unflag, Math.round(this.squareSize * 1.2));
 
 		this.emit('initialized');
+
+		if (this.type === 'multi') {
+			this.isFirst = false;
+			const center_x = Math.round((this.width - 1) / 2);
+			const center_y = Math.round((this.height - 1) / 2);
+			this.createBoard(center_x, center_y);
+		}
 	}
 
 
@@ -104,17 +113,17 @@ export class MS extends EventEmitter {
 		if (yEdge) safe_amount-= 3;
 		if (xEdge && yEdge) safe_amount++;
 
-		const bombsArray = Array(this.bombAmount).fill(true);
-		const emptyArray = Array(this.width*this.height - this.bombAmount - safe_amount).fill(false);
+		const bombsArray = Array(this.bombAmount).fill(1);
+		const emptyArray = Array(this.width*this.height - this.bombAmount - safe_amount).fill(0);
 		
 		let oneD_Array = emptyArray.concat(bombsArray);
 		oneD_Array = shuffle(oneD_Array);
 
 		let oneD_idx = 0;
 		for (let y = 0; y < this.height; y++) {
-			this.boardArray[y] = Array(this.width).fill(false);
-			this.flagArray[y] = Array(this.width).fill(false);
-			this.diggedArray[y] = Array(this.width).fill(false);
+			this.boardArray[y] = Array(this.width).fill(0);
+			this.flagArray[y] = Array(this.width).fill(0);
+			this.diggedArray[y] = Array(this.width).fill(0);
 			this.numsArray[y] = Array(this.width).fill(9);
 			for (let x = 0; x < this.width; x++) {
 				let oneD_pointer = this.width * y + x;
@@ -199,11 +208,12 @@ export class MS extends EventEmitter {
 		const x = parseInt(e.target.dataset.x);
 		const y = parseInt(e.target.dataset.y);
 
-		if (this.isFirst) {
+		if (this.isFirst && this.type === 'solo') {
 			this.isFirst = false;
 			this.createBoard(x, y);
 			return;
 		}
+		
 		// 掘れる場所が確定して、一気にやる機能はスキップ
 		if (this.diggedArray[y][x]) return;
 
@@ -211,6 +221,7 @@ export class MS extends EventEmitter {
 	}
 
 	select(x, y) {
+		if (this.isFirst) return;
 		this.sel_x = x;
 		this.sel_y = y;
 
@@ -289,10 +300,11 @@ export class MS extends EventEmitter {
 		}
 		
 		if (bigdigPossible) {
-			this.digAround(x, y);
-			this.emit('bigdiged');
+			this.diggedArray[y][x] = 1; // normal dig
+			this.bigdig(x, y);
+			this.emit('bigdigStarted');
 		} else {
-			this.diggedArray[y][x] = true;
+			this.diggedArray[y][x] = 1;
 			this.emit('digged');
 			this.emit('changed');
 			this.checkGame();
@@ -301,52 +313,60 @@ export class MS extends EventEmitter {
 		this.unselect();
 	}
 
-	digAround(x, y) {
-		if (this.status === "ended") return;
-		setTimeout(() => {
-			this.loopIfPossible(x-1, y-1);
-			this.loopIfPossible(x, y-1);
-			this.loopIfPossible(x+1, y-1);
-			this.loopIfPossible(x-1, y);
-			this.loopIfPossible(x+1, y);
-			this.loopIfPossible(x-1, y+1);
-			this.loopIfPossible(x, y+1);
-			this.loopIfPossible(x+1, y+1);
-			
-			if (y > 0) {
-				if (x > 0) this.diggedArray[y-1][x-1] = true;
-				this.diggedArray[y-1][x] = true;
-				if (x < this.width-1) this.diggedArray[y-1][x+1] = true;
-			}
-			if (x > 0) this.diggedArray[y][x-1] = true;
-			if (x < this.width-1) this.diggedArray[y][x+1] = true;
-			if (y < this.height-1) {
-				if (x < 0) this.diggedArray[y+1][x-1] = true;
-				this.diggedArray[y+1][x] = true;
-				if (x < this.width-1) this.diggedArray[y+1][x+1] = true;
-			}
-			this.emit('changed');
-			this.checkGame();
-		}, 10);
-		
+	bigdig(x, y) {
+		this.digAround(x,y);
 	}
 
-	loopIfPossible(x, y) {
+	digAround(x, y) {
+		return new Promise((resolve, reject) => {
+			setTimeout(() => {
+				this.digAround_ifpossible(x-1, y-1);
+				this.digAround_ifpossible(x, y-1);
+				this.digAround_ifpossible(x+1, y-1);
+				this.digAround_ifpossible(x-1, y);
+				this.digAround_ifpossible(x+1, y);
+				this.digAround_ifpossible(x-1, y+1);
+				this.digAround_ifpossible(x, y+1);
+				this.digAround_ifpossible(x+1, y+1);
+				if (y > 0) {
+					if (x > 0) this.diggedArray[y-1][x-1] = 1;
+					this.diggedArray[y-1][x] = 1;
+					if (x < this.width-1) this.diggedArray[y-1][x+1] = 1;
+				}
+				if (x > 0) this.diggedArray[y][x-1] = 1;
+				if (x < this.width-1) this.diggedArray[y][x+1] = 1;
+				if (y < this.height-1) {
+					if (x < 0) this.diggedArray[y+1][x-1] = 1;
+					this.diggedArray[y+1][x] = 1;
+					if (x < this.width-1) this.diggedArray[y+1][x+1] = 1;
+				}
+				this.emit('changed');
+				this.checkGame();
+				resolve();
+			}, 10);
+		});
+	}
+
+	digAround_ifpossible(x, y) {
 		if (x >= 0 && x <= this.width-1 && y >= 0 && y <= this.height-1) {
-			if (this.numsArray[y][x] === 0 && !this.diggedArray[y][x] && !this.flagArray[y][x]) this.digAround(x, y);
+			if (this.numsArray[y][x] === 0 && !this.diggedArray[y][x] && !this.flagArray[y][x]) {
+				this.digAround(x, y);
+				return true
+			}
 		}
 		return false;
 	}
 
 	flag() {
-		this.flagArray[this.sel_y][this.sel_x] = true;
+		this.flagArray[this.sel_y][this.sel_x] = 1;
 		this.emit('flagged');
 		this.emit('changed');
 		this.checkGame()
 		this.unselect();
+		console.log(this.promises);
 	}
 	unflag() {
-		this.flagArray[this.sel_y][this.sel_x] = false;
+		this.flagArray[this.sel_y][this.sel_x] = 0;
 		this.emit('unflagged');
 		this.emit('changed');
 		this.checkGame();
@@ -369,7 +389,6 @@ export class MS extends EventEmitter {
 	checkGame() {
 		if (this.status === 'ended') return;
 		const digged_amount = flatten(this.diggedArray).filter(e => e).length;
-		const flag_amount = flatten(this.flagArray).filter(e => e).length;
 		if (digged_amount === this.width*this.height - this.bombAmount) {
 			this.gameEnd('clear');
 		}
@@ -400,6 +419,7 @@ export class MS extends EventEmitter {
 	}
 
 	exit() {
+		this.gameEnd('noresult')
 		this.emit('exited');
 		this.destroy();
 	}
@@ -431,17 +451,12 @@ export class MS extends EventEmitter {
 		elms.board.classList.remove(`type_${this.type}`);
 		elms.menu.classList.remove(`type_${this.type}`);
 
-
-
 		elms.h_flags.textContent = 0
 		elms.h_time.textContent = `00:00`;
-
-
 
 		this.emit('destroyed');
 		this.clearAllListeners();
 	}
-
 
 	/* timer */
 	timer_count() {
@@ -478,9 +493,12 @@ export class MS extends EventEmitter {
 	onDig(listener) {
 		this.addEventListener('digged', listener);
 	}
-	onBigdig(listener) {
-		this.addEventListener('bigdiged', listener);
+	onBigdigStart(listener) {
+		this.addEventListener('bigdigStarted', listener);
 	}
+	// onBigdigEnd(listener) {
+	// 	this.addEventListener('bigdigEnded', listener);
+	// }
 	onFlag(listener) {
 		this.addEventListener('flagged', listener);
 	}

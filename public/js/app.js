@@ -1,7 +1,7 @@
 'use strict';
 import { initiate } from './GameHandler.js';
 import { myroom } from './myroom.js';
-import { SDF, getDOM, elms, wait, createNotice, createRoomCard, SE, socket, level_templates, loadCompleted, loadStart, randTextGenerator } from './utils.js';
+import { SDF, getDOM, elms, wait, createNotice, createRoomCard, SE, socket, level_templates, loadCompleted, loadStart, randTextGenerator, openGameConfig, closeGameConfig } from './utils.js';
 
 SE.load();
 socket.on('initial info', (data) => {
@@ -12,19 +12,25 @@ socket.on('initial info', (data) => {
 	});
 	loadCompleted();
 });
-socket.on('disconnected', () => {
-	createNotice('通信が切断されました');
+socket.on('disconnect', () => {
+	createNotice('通信が切断されました', true);
 })
 socket.on('reconnect', () => {
 	createNotice('通信が再開しました');
 });
 socket.on('log', (msg) => {
 	createNotice(msg);
-})
+});
 
 SDF('main-title', 'click', function() {
 	socket.emit('debug');
 });
+
+setTimeout(() => {
+	if (!socket.connected) {
+		createNotice('error');
+	}
+}, 1000);
 
 
 SDF('allow_sound', 'click', function() { 
@@ -82,39 +88,6 @@ SDF(multi_btn, 'click', function() {
 	elms.rooms_wrap.classList.add('active');
 });
 
-function openGameConfig(type) {
-	const title = getDOM('g_config_title');
-	const submit = getDOM('g_config_submit');
-	const back = getDOM('g_config_back');
-	back.addEventListener('click', function() { closeGameConfig(type) }, {
-		once: true
-	})
-	if (type === 'solo') {
-		elms.g_config.classList.add('solo');
-		title.textContent = 'ソロプレイ';
-		submit.textContent = 'Start';
-		
-	} else if (type === 'multi') {
-		elms.g_config.classList.add('multi');
-		title.textContent = 'マルチ設定';
-		submit.textContent = 'ルーム作成';
-	}
-	elms.g_config.classList.add('active');
-}
-function closeGameConfig(type) {
-	if (type === 'solo') {
-		elms.g_config.classList.remove('active');
-		elms.g_config.classList.remove('solo');
-		elms.rooms_wrap.classList.remove('active'); // for some reason
-		elms.main_options.classList.add('active');
-	} else if (type === 'multi') {
-		elms.g_config.classList.remove('active');
-		elms.g_config.classList.remove('multi');
-		elms.rooms_wrap.classList.add('active')
-	} else {
-		console.error('不明なタイプで設定画面を閉じようとしました');
-	}
-}
 
 // rooms
 SDF('create_room', 'click', function() {
@@ -197,12 +170,29 @@ socket.on('you got matched', (room) => {
 		count--;
 		if (count < 0) {
 			clearInterval(countdownID);
-			initiate('multi', room.width, room.height, room.bomb);
+			readyMulti(room.id);
 			elms.matched_screen.classList.remove('active');
 		}
 	}, 1000);
 	
 });
+
+// room start (ongame)
+socket.on('room started', (id) => {
+	const card = getDOM(`room_card_${id}`);
+	const status = card.querySelector('.room_card_status');
+	status.textContent = '対戦中';
+	card.dataset.status = 'ongame';
+	// card.querySelector('.room_card_observe').setAttribute('disabled', false);
+});
+
+function readyMulti(id) {
+	socket.emit('game ready', id);
+}
+socket.on('start your game', (room) => {
+	myroom.server = room;
+	initiate('multi', room.width, room.height, room.bomb, room);
+})
 
 
 // game form
