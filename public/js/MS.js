@@ -363,7 +363,6 @@ export class MS extends EventEmitter {
 		this.emit('changed');
 		this.checkGame()
 		this.unselect();
-		console.log(this.promises);
 	}
 	unflag() {
 		this.flagArray[this.sel_y][this.sel_x] = 0;

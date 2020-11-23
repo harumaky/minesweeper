@@ -140,7 +140,7 @@ function setElms() {
 		'solo_btn', 'multi_btn', 'rooms_wrap', 'waiting_screen', 'matched_screen', 'g_config', 
 		'f_width', 'f_height', 'f_bomb', 'g_wrap', 'g_field', 'board', 'b_wrap', 
 		'menu', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time',
-		'opp', 'opp_field', 'opp_name', 'opp_width', 'opp_height', 'opp_flags', 'opp_wrap', 'opp_board', 'opp_waiting'
+		'opp', 'opp_field', 'opp_name', 'opp_status', 'opp_width', 'opp_height', 'opp_flags', 'opp_wrap', 'opp_board', 'opp_waiting'
 	];
 	let elms = {};
 	for (let i = 0; i < elm_ids.length; i++) {
@@ -191,10 +191,10 @@ export const level_templates = {
 }
 
 export function loadCompleted() {
-	getDOM('loading_wrap').classList.add('slideout')
+	getDOM('loading_wrap').classList.add('slideout');
 }
 export function loadStart() {
-	getDOM('loading_wrap').classList.remove('slideout')
+	getDOM('loading_wrap').classList.remove('slideout');
 }
 
 export function isMultiByDOM() {

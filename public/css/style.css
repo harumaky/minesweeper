@@ -349,6 +349,9 @@ input.warn {
 [data-status='ongame'] .room_card_status{
 	color: rgb(233, 64, 64);
 }
+[data-status='ended'] .room_card_status{
+	color: rgb(63, 63, 63);
+}
 
 .room_card_btns {
 	margin-left: auto;
@@ -383,7 +386,6 @@ input.warn {
 	display: block;
 }
 
-
 /* game screen */
 .g_wrap {
 	display: none;
@@ -415,6 +417,7 @@ input.warn {
 }
 .opp_field {
 	overflow: auto;
+	margin-bottom: 20px;
 }
 .g_field.style_C {
 	width: 60%;
@@ -528,6 +531,13 @@ input.warn {
 
 .board.failed .bomb, .opp_board.failed .bomb {
 	background: red;
+}
+.opp_board.exited::after {
+	content: '';
+	position: absolute;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background: rgba(0,0,0,0.3);
 }
 
 .menu {
@@ -765,6 +775,12 @@ input.warn {
 	width: 90%;
 	max-width: 300px;
 	padding: 16px;
+}
+.modal .restart_btn {
+	display: none;
+}
+.modal .restart_btn.active {
+	display: block;
 }
 
 .clear_modal {

@@ -1,5 +1,5 @@
 'use strict';
-import { socket, SDF, getDOM, wait, flatten, elms, SE, loadStart, loadCompleted, createNotice, isMultiByDOM, openGameConfig, closeGameConfig } from './utils.js';
+import { socket, SDF, getDOM, wait, flatten, elms, SE, loadStart, loadCompleted, createNotice, openGameConfig, closeGameConfig } from './utils.js';
 import { myroom } from './myroom.js';
 import { MS } from './MS.js';
 
@@ -58,14 +58,11 @@ export async function initiate(type, width, height, bomb, room = {}) {
 	game.onInit(function() {
 		console.log(`playcount: ${this.playcount}`);
 		loadCompleted();
-		console.log(this);
 		gamehandler(this);
 	});
 	
 	game.init(width, height, bomb, squareSize, style, type, room);
-
 }
-
 
 function gamehandler(game) {
 	const isMulti = game.type === 'multi';
@@ -132,26 +129,49 @@ function gamehandler(game) {
 		}
 	});
 	game.onGameEnd(function() {
-		console.log("game ended");
+		const restarts = document.querySelectorAll('.restart_btn');
+		if (isMulti) {
+			socket.emit('game ended', game.room.id);
+			restarts.forEach(btn => {btn.classList.remove('active')});
+		} else {
+			restarts.forEach(btn => {btn.classList.add('active')});
+		}
 	});
 	game.onGameFail(function() {
 		SE.play('bomb');
 		SE.play('tin');
 		elms.board.classList.add('failed');
-		getDOM('fail_result_time').textContent = game.lastTime;
+		getDOM('fail_result_time').textContent = this.lastTime;
 		wait(500).then(() => {
 			getDOM('fail_modal').classList.add('active');
-		})
+		});
+		if (isMulti) {
+			const data = {
+				id: this.room.id,
+				time: this.lastTime,
+			}
+			socket.emit('game failed', data);
+		}
 	});
 	game.onGameClear(function() {
 		SE.play('win');
 		getDOM('clear_result_time').textContent = this.lastTime;
 		wait(500).then(() => {
 			getDOM('clear_modal').classList.add('active');
-		})
+		});
+		if (isMulti) {
+			const data = {
+				id: this.room.id,
+				time: this.lastTime,
+			}
+			socket.emit('game cleared', data);
+		}
 	});
 	game.onExit(function() {
-		console.log("exited");
+		if (isMulti) {
+			socket.emit('exit game', this.room.id);
+			destryoOppBoard();
+		}
 	});
 	game.onDestroy(function() {
 		console.log("destroyed");
@@ -160,13 +180,14 @@ function gamehandler(game) {
 }
 
 socket.on('opp firstdata', (data) => {
-	const isOwner = game.room.id === socket.id;
+	const isOwner = game.room.ownerID === socket.id;
 	const oppname = isOwner ? game.room.player : game.room.owner;
 	elms.opp_name.textContent = oppname;
+	elms.opp_status.textContent = 'まだ一手も打っていません';
 	elms.opp_width.textContent = data.width;
 	elms.opp_height.textContent = data.height;
 	game.opp_width = data.width;
-	game.opp_height = data.height
+	game.opp_height = data.height;
 
 	createOppBoard(data);
 	elms.opp_waiting.classList.remove('active');
@@ -175,7 +196,25 @@ socket.on('opp firstdata', (data) => {
 socket.on('opp change', (data) => {
 	console.log('opponent changed board');
 	console.log(data);
-	updateOppBoard(data) 
+	updateOppBoard(data);
+});
+socket.on('opp failed', (time) => {
+	createNotice('相手が爆発しました', true);
+	elms.opp_board.classList.add('failed');
+	elms.opp_status.textContent = `失敗（時刻：${time}）`;
+	SE.play('bomb');
+	SE.play('tin');
+});
+socket.on('opp cleared', (time) => {
+	createNotice('相手がクリアしました', true);
+	elms.opp_board.classList.add('cleared');
+	elms.opp_status.textContent = `クリア（時刻：${time}）`;
+	SE.play('win');
+});
+socket.on('opp exited', () => {
+	createNotice('相手が退出しました', true);
+	elms.opp_board.classList.add('exited');
+	elms.opp_status.textContent = '退出';
 });
 
 
@@ -234,20 +273,41 @@ function updateOppBoard(data) {
 			id++;
 		}
 	}
-	elms.opp_flags.textContent =data.flag_reminder;
+	elms.opp_flags.textContent = data.flag_reminder;
+	const digged_amount = flatten(data.digged).filter(e => e).length;
+	const progress = Math.round((digged_amount / (game.width * game.height - game.bombAmount)) * 1000) / 10;
+	elms.opp_status.textContent = `完成度${progress}%`;
+}
+
+function destryoOppBoard() {
+	elms.opp_board.classList.remove('failed');
+	elms.opp_board.classList.remove('cleared');
+	elms.opp_board.classList.remove('exited');
+
+	while(elms.opp_board.firstChild) {
+		const child = elms.opp_board.firstChild;
+		elms.opp_board.removeChild(child);
+	}
+	elms.opp_flags.textContent = 0;
+	elms.opp_status.textContent = '';
+	elms.opp_name.textContent = '';
+	elms.opp_width.textContent = '';
+	elms.opp_height.textContent = '';
 }
 
 
 SDF('exit_btn', 'click', exit)
 function exit() {
+	const isMulti = game.type === 'multi';
 	game.exit();
-	elms.g_wrap.classList.remove('active');
-	if (game.type === 'multi') {
+	if (isMulti) {
+		myroom.break();
 		closeGameConfig('multi');
 	} else {
 		closeGameConfig('solo');
 	}
-
+	
+	elms.g_wrap.classList.remove('active');
 	elms.menu.classList.remove('active');
 	elms.lobby.classList.add('active');
 }
@@ -259,6 +319,7 @@ document.querySelectorAll('.close_result_modal').forEach(elm => {
 	});
 });
 
+// only showed when solo
 document.querySelectorAll('.restart_btn').forEach(elm => {
 	elm.addEventListener('click', function() {
 		getDOM('clear_modal').classList.remove('active');

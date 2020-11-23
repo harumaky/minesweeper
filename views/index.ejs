@@ -170,13 +170,8 @@
 					<h3>相手の情報を取得しています...</h3>
 				</div>
 				<div class="opp" id="opp">
-					<div class="opp_data">
-						<h3>相手の情報</h3>
-						<p>名前：<span id="opp_name"></span></p>
-						<p>幅：<span id="opp_width"></span>, 高さ：<span id="opp_height"></span></p>
-					</div>
-
 					<h2>相手のボード</h2>
+					<h3>状態：<span id="opp_status"></span></h3>
 					<div class="opp_field" id="opp_field">
 						<div class="opp_wrap" id="opp_wrap">
 							<div class="opp_head">
@@ -188,7 +183,12 @@
 							
 							<div class="opp_board" id="opp_board"></div>
 						</div>
-		
+					</div>
+					<div class="opp_data">
+						<h3>相手の情報</h3>
+						<p>名前：<span id="opp_name"></span></p>
+						<p>幅：<span id="opp_width"></span></p>
+						<p>高さ：<span id="opp_height"></span></p>
 					</div>
 
 				</div>
@@ -205,7 +205,7 @@
 				</div>
 				<div class="controls">
 					<button id="close_clear_modal" class="close_result_modal"><span>CLOSE</span></button>
-					<button class="restart_btn"><span>RESTART</span></button>
+					<button class="restart_btn active"><span>RESTART</span></button>
 				</div>
 			</div>
 		</div>
@@ -218,7 +218,7 @@
 				</div>
 				<div class="controls">
 					<button id="close_fail_modal" class="close_result_modal"><span>CLOSE</span></button>
-					<button class="restart_btn"><span>RESTART</span></button>
+					<button class="restart_btn active"><span>RESTART</span></button>
 				</div>
 			</div>
 		</div>

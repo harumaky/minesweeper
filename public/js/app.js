@@ -13,7 +13,7 @@ socket.on('initial info', (data) => {
 	loadCompleted();
 });
 socket.on('disconnect', () => {
-	createNotice('通信が切断されました', true);
+	createNotice('通信が切断されました. リロードしてください', true);
 })
 socket.on('reconnect', () => {
 	createNotice('通信が再開しました');
@@ -25,12 +25,6 @@ socket.on('log', (msg) => {
 SDF('main-title', 'click', function() {
 	socket.emit('debug');
 });
-
-setTimeout(() => {
-	if (!socket.connected) {
-		createNotice('error');
-	}
-}, 1000);
 
 
 SDF('allow_sound', 'click', function() { 
@@ -133,11 +127,13 @@ socket.on('destroyed your room', (id) => {
 
 socket.on('room added', (data) => {createRoomCard(data);});
 socket.on('room removed', (id) => {
-	getDOM(`room_card_${id}`).remove();
+	try {
+		getDOM(`room_card_${id}`).remove();
+	} catch (e) {
+		console.log('なんらかの理由で既にないルームカードを消そうとしました');
+		console.log(e);
+	}
 });
-socket.on('your room removed', () => {
-	createNotice('あなたの相手が切断しました', true);
-})
 
 // join the room
 // emit-join is defined in createRoomCard()
@@ -152,7 +148,7 @@ socket.on('room matched', (id) => {
 socket.on('you got matched', (room) => {
 	createNotice('マッチ成立！');
 	myroom.server = room;
-	const isOwner = room.id === socket.id;
+	const isOwner = room.ownerID === socket.id;
 	const opponent = isOwner ? room.player : room.owner;
 	getDOM('matched_screen_opponent').textContent = opponent;
 	if (isOwner) {
@@ -192,6 +188,14 @@ function readyMulti(id) {
 socket.on('start your game', (room) => {
 	myroom.server = room;
 	initiate('multi', room.width, room.height, room.bomb, room);
+});
+
+// room ended
+socket.on('room ended', (id) => {
+	const card = getDOM(`room_card_${id}`);
+	const status = card.querySelector('.room_card_status');
+	status.textContent = '終了';
+	card.dataset.status = 'ended';
 })
 
 
