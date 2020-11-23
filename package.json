@@ -1,6 +1,6 @@
 {
   "name": "minesweeper",
-  "version": "0.1.3β",
+  "version": "0.1.3b",
   "description": "super duper minesweeper",
   "main": "index.js",
   "scripts": {
