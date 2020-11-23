@@ -343,7 +343,7 @@ input.warn {
 [data-status='waiting'] .room_card_status{
 	color: rgb(19, 183, 233);
 }
-[data-status='ready'] .room_card_status{
+[data-status='matched'] .room_card_status{
 	color: rgb(34, 187, 34);
 }
 [data-status='ongame'] .room_card_status{
@@ -362,24 +362,24 @@ input.warn {
 }
 
 
-/* waiting/ready */
-.waiting_screen, .ready_screen {
+/* waiting/matched */
+.waiting_screen, .matched_screen {
 	width: 90%;
 	text-align: center;
 	padding: 30px 0;
 	display: none;
 	margin: 0 auto;
 }
-.waiting_screen_body, .ready_screen_body {
+.waiting_screen_body, .matched_screen_body {
 	background: rgba(255, 255, 255, 0.8);
 	font-size: 18px;
 	padding-top: 10px;
 	border-radius: 20px;
 }
-.waiting_screen p, .ready_screen p {
+.waiting_screen p, .matched_screen p {
 	padding-bottom: 10px;
 }
-.waiting_screen.active, .ready_screen.active {
+.waiting_screen.active, .matched_screen.active {
 	display: block;
 }
 
@@ -413,7 +413,7 @@ input.warn {
 	justify-content: center;
 	align-items: center;
 }
-.g_field.type_C {
+.g_field.style_C {
 	width: 60%;
 }
 
@@ -487,7 +487,7 @@ input.warn {
 .b_head_menu_btn:hover {
 	opacity: 0.6;
 }
-.type_C .b_head_menu_btn_outer {
+.style_C .b_head_menu_btn_outer {
 	display: none;
 }
 
@@ -529,11 +529,11 @@ input.warn {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
-.menu.type_C {
+.menu.style_C {
 	width: 40%;
 	display: inline-block;
 }
-.menu.type_A, .menu.type_B {
+.menu.style_A, .menu.style_B {
 	position: absolute;
 	top: -100%; left: 0;
 	opacity: 0;
@@ -541,7 +541,7 @@ input.warn {
 	background: rgba(255,255,255,0.8);
 	transition: all 0.6s;
 }
-.menu.type_A.active, .menu.type_B.active {
+.menu.style_A.active, .menu.style_B.active {
 	top: 0;
 	opacity: 1;
 }
@@ -568,7 +568,7 @@ input.warn {
 .close_menu_btn::after {
 	transform: translateY(-50%) translateX(-50%) rotate(-45deg);
 }
-.menu.type_C .close_menu_btn {
+.menu.style_C .close_menu_btn {
 	display: none;
 }
 

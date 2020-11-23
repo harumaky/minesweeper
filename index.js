@@ -1,32 +1,23 @@
 'use strict';
-
-const { log } = require('console');
+const version = require('./package.json').version;
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server)
+const io = require('socket.io')(server);
+const Room = require('./room.js');
 const PORT = process.env.PORT || 3000;
 
+app.set('view engine', 'ejs');
 app.use(express.static('public'));
+app.get('/', (req, res) => {
+	res.render('index', {
+		version: version
+	});
+});
 
 
 let num_users = 0; // logged in users
 let rooms = [];
-
-// custom/additional room info
-class Room {
-	constructor(data) {
-		this.owner = data.owner;
-		this.width = data.width;
-		this.height = data.height;
-		this.bomb = data.bomb;
-		this.created = new Date();
-		this.id = undefined;
-		this.status = 'waiting';
-		this.player = undefined;
-		this.playerID = undefined;
-	}
-}
 
 io.on('connection', (socket) => {
 	socket.isLoggedin = false;
@@ -53,11 +44,11 @@ io.on('connection', (socket) => {
 	// data -> owner, W, H, B
 	socket.on('create room', (data) => {
 		if (socket.myroom !== undefined) {
-			console.log(`${socket.username}は既に部屋に所属しているのに作成しようとしました`);
+			log(`既に部屋に所属しているのに作成しようとしました`);
 			return;
 		}
 		const room = new Room(data);
-		room.id = socket.id; // room id is equal to socket id
+		room.id = socket.id; // room id is equal to owner's socket id
 		rooms.push(room);
 		socket.myroom = room;
 		socket.join(room.id);
@@ -70,14 +61,14 @@ io.on('connection', (socket) => {
 			return item.id === id;
 		});
 		if (socket.myroom !== undefined) {
-			console.log(`${socket.username}は既に部屋に所属しているのに別の場所に入ろうとしました`);
+			log(`既に部屋に所属しているのに別の場所に入ろうとしました`);
 			return;
 		}
 		if (room.status !== 'waiting') {
-			console.log(`${socket.username}は既に成立した部屋に入ろうとしました`);
+			log(`既に成立した部屋に入ろうとしました`);
 			return;
 		}
-		room.status = 'ready';
+		room.status = 'matched';
 		room.player = socket.username;
 		room.playerID = socket.id;
 		socket.join(id);
@@ -104,7 +95,6 @@ io.on('connection', (socket) => {
 			// 相手がいる場合、ソロプレイ化する
 		}
 	});
-
 	
 });
 
@@ -117,6 +107,11 @@ function destroyRoom(id) {
 	io.in(id).emit('your room removed');
 }
 
+function log(socket, msg) {
+	socket.emit('log', msg);
+}
+
+
 server.listen(PORT, () => {
 	console.log(`Listening on ${PORT}`);
-})
+});

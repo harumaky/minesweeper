@@ -1,6 +1,15 @@
 'use strict';
-
+import { SEHandler } from './SEHandler.js';
+export const SE = new SEHandler();
 export const socket = io();
+
+SE.triedLoad(function() {
+	if (SE.status === 'loaded') {
+		console.log(`All sound effects loaded in ${new Date() - SE.initTime}ms`);
+	} else {
+		createNotice('音源の読み込みに失敗しました');
+	}
+});
 
 /**
  * wait
@@ -90,7 +99,7 @@ export function createNotice(msg, important = false) {
  * arg.width
  * arg.height
  * arg.bomb
- * arg.status (waiting/ready/ongame)
+ * arg.status (waiting/matched/ongame)
  */
 export function createRoomCard(arg) {
 	const tmp = getDOM('room_card_tmp');
@@ -120,10 +129,25 @@ export function createRoomCard(arg) {
 }
 const roomStatusToJP = {
 	waiting: '受付中',
-	ready: 'マッチ完了',
+	matched: 'マッチ完了',
 	ongame: '対戦中',
 	ended: '終了'
 }
+
+function setElms() {
+	const elm_ids = [
+		'screen', 'lobby', 'user_number', 'user_form', 'main_options', 
+		'solo_btn', 'multi_btn', 'rooms_wrap', 'waiting_screen', 'matched_screen', 'g_config', 
+		'f_width', 'f_height', 'f_bomb', 'g_wrap', 'g_field', 'board', 'b_wrap', 
+		'menu', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time'
+	];
+	let elms = {};
+	for (let i = 0; i < elm_ids.length; i++) {
+		elms[elm_ids[i]] = getDOM(elm_ids[i]);
+	}
+	return elms;
+}
+export const elms = setElms();
 
 export function shuffle(arr) {
 	for (let i = arr.length - 1; i >= 0; i--) {

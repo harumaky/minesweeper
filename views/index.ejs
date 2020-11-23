@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>マインスイーパー</title>
+	<title>Super Duper Minesweeper!</title>
 
 	<link rel="stylesheet" href="./css/reboot.css">
 	<link rel="stylesheet" href="./css/form.css">
@@ -32,20 +32,20 @@
 	<div class="screen" id="screen">
 		<div class="notice_wrap" id="notice_wrap"></div>
 		<div class="lobby active" id="lobby">
-			<h1 class="title text-grow" id="main-title">Super Duper Minesweeper!<span class="version text-grow" id="version">0.1.1β</span></h1>
+			<h1 class="title text-grow" id="main-title">Super Duper Minesweeper!<span class="version text-grow" id="version"><%= version %></span></h1>
 
 			<form id="user_form" class="user_form active">
 				<p>ユーザー名を設定してください</p>
 				<div class="input_group">
-					<input type="text" id="conf_user_name" required>
+					<input type="text" id="f_user_name" required>
 				</div>
 				
 				<button type="submit" class="main-btn text-grow box-grow">Login</button>
 			</form>
 
 			<div class="main_options" id="main_options">
-				<button class="main-btn text-grow box-grow" id="main_options_solo">ソロプレイ</button>
-				<button class="main-btn text-grow box-grow" id="main_options_multi">マルチプレイ</button>
+				<button class="main-btn text-grow box-grow" id="solo_btn">ソロプレイ</button>
+				<button class="main-btn text-grow box-grow" id="multi_btn">マルチプレイ</button>
 			</div>
 
 			<form id="g_config" class="g_config">
@@ -57,15 +57,15 @@
 				<div class="g_config_inputs">
 					<div class="input_group">
 						<span class="input_text">幅</span>
-						<input type="number" id="conf_width" value="8" max="50" min="6" required>
+						<input type="number" id="f_width" value="8" max="50" min="6" required>
 					</div>
 					<div class="input_group">
 						<span class="input_text">高さ</span>
-						<input type="number" id="conf_height" value="10" max="50" min="6" required>
+						<input type="number" id="f_height" value="10" max="50" min="6" required>
 					</div>
 					<div class="input_group">
 						<span class="input_text">爆弾</span>
-						<input type="number" id="conf_bomb" value="20" required>
+						<input type="number" id="f_bomb" value="20" required>
 					</div>
 				</div>
 				<div class="g_config_templates">
@@ -113,10 +113,10 @@
 			</div>
 		</div>
 
-		<div class="ready_screen" id="ready_screen">
-			<h2 class="ready_screen_title text-grow">マッチが完了しました。</h2>
-			<div class="ready_screen_body">
-				<p>相手: <span id="ready_screen_opponent"></span></p>
+		<div class="matched_screen" id="matched_screen">
+			<h2 class="matched_screen_title text-grow">マッチが完了しました。</h2>
+			<div class="matched_screen_body">
+				<p>相手: <span id="matched_screen_opponent"></span></p>
 				<p><span id="game_start_in"></span>秒後に開始します</p>
 				<p>※はじめのマスは自動でクリックされます</p>
 			</div>

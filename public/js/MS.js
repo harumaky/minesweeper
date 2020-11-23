@@ -1,26 +1,22 @@
 'use strict';
 import { EventEmitter } from './EventEmitter.js';
-import { shuffle, flatten, getElmByCoord, setStyleSquare, setTopLeft, getDOM} from './utils.js';
+import { shuffle, flatten, getElmByCoord, setStyleSquare, setTopLeft, getDOM, elms} from './utils.js';
 
-const elm_ids = ['g_wrap', 'g_field', 'board', 'b_wrap', 'menu', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time'];
-let elms = {};
-for (let i = 0; i < elm_ids.length; i++) {
-	elms[elm_ids[i]] = getDOM(elm_ids[i]);
-}
-
-export class Minesweeper extends EventEmitter {
+export class MS extends EventEmitter {
 	constructor() {
 		super();
 		this.playcount = 0;
 	}
-
+	
 	/**
-	 * @param {DOMElement} elms
 	 * @param {Number} width 
 	 * @param {Number} height 
 	 * @param {Number} bombAmount 
+	 * @param {Number} squareSize 
+	 * @param {String} style screen style (A/B/C)
+	 * @param {String} type solo or multi
 	 */
-	init(width, height, bombAmount, squareSize, type) {
+	init(width, height, bombAmount, squareSize, style, type) {
 		if (this.status === "ongame") return;
 		this.playcount++;
 
@@ -28,6 +24,7 @@ export class Minesweeper extends EventEmitter {
 		this.height = height;
 		this.bombAmount = bombAmount;
 		this.squareSize = squareSize;
+		this.style = style;
 		this.type = type;
 
 		this.boardArray = []; // true -> bomb false -> valid
@@ -59,13 +56,12 @@ export class Minesweeper extends EventEmitter {
 				const square = document.createElement('div');
 				square.dataset.y = y;
 				square.dataset.x = x;
-				square.dataset.playcount = this.playcount
+				square.dataset.playcount = this.playcount;
 
 				square.style.width = this.squareSize + 'px';
 				square.style.height = this.squareSize + 'px';
 				square.style.lineHeight = this.squareSize + 'px';
 				square.style.fontSize = this.squareSize / 2 + 10 + 'px';
-
 
 				const className = 'valid';
 				square.classList.add(className);
@@ -404,7 +400,6 @@ export class Minesweeper extends EventEmitter {
 	}
 
 	exit() {
-		this.gameEnd('exited');
 		this.emit('exited');
 		this.destroy();
 	}
@@ -421,16 +416,27 @@ export class Minesweeper extends EventEmitter {
 			child.removeEventListener('click', this.bf_click);
 			elms.board.removeChild(child);
 		}
+		
+		elms.board.classList.remove(`failed`);
+
+		elms.g_wrap.classList.remove(`style_${this.style}`);
+		elms.g_field.classList.remove(`style_${this.style}`);
+		elms.b_wrap.classList.remove(`style_${this.style}`);
+		elms.board.classList.remove(`style_${this.style}`);
+		elms.menu.classList.remove(`style_${this.style}`);
 
 		elms.g_wrap.classList.remove(`type_${this.type}`);
 		elms.g_field.classList.remove(`type_${this.type}`);
 		elms.b_wrap.classList.remove(`type_${this.type}`);
 		elms.board.classList.remove(`type_${this.type}`);
-		elms.board.classList.remove(`failed`);
 		elms.menu.classList.remove(`type_${this.type}`);
+
+
 
 		elms.h_flags.textContent = 0
 		elms.h_time.textContent = `00:00`;
+
+
 
 		this.emit('destroyed');
 		this.clearAllListeners();
