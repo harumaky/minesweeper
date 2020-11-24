@@ -1,7 +1,7 @@
 'use strict';
 import { initiate } from './GameHandler.js';
 import { myroom } from './myroom.js';
-import { env, devlog, SDF, getDOM, elms, wait, createNotice, createRoomCard, SE, socket, level_templates, loadCompleted, loadStart, randTextGenerator, openGameConfig, closeGameConfig } from './utils.js';
+import { env, devlog, SDF, getDOM, elms, createNotice, createRoomCard, formatDate, SE, socket, level_templates, loadCompleted, loadStart, randTextGenerator, openGameConfig, closeGameConfig } from './utils.js';
 
 SE.load();
 SE.triedLoad(function() {
@@ -29,6 +29,13 @@ socket.on('reconnect', () => {
 socket.on('log', (msg) => {
 	createNotice(msg);
 });
+
+socket.on('users change', (num) => {
+	updateUserNumber(num)
+});
+function updateUserNumber(num) {
+	elms.user_number.textContent = num
+}
 
 if (env === 'development') {
 	SDF('main-title', 'click', function() {
@@ -59,7 +66,7 @@ if (username !== null) {
 } else {
 	// set random name in conf_use_name
 	elms.f_username.value = randTextGenerator.getStrings('ja', 5);
-	SDF(elms.f_username, 'click', function() {this.value = ''});
+	elms.f_username.addEventListener('click', function() {{this.value = ''}}, {once:true});
 }
 SDF(user_form, 'submit', function(e) {
 	e.preventDefault();
@@ -349,9 +356,54 @@ SDF('widen_menu_btn', 'click', function() {
 });
 
 
-socket.on('users change', (num) => {
-	updateUserNumber(num)
-});
-function updateUserNumber(num) {
-	elms.user_number.textContent = num
+// chat
+document.querySelectorAll('.open_chat_btn').forEach((btn) => {
+	btn.addEventListener('click', function() {
+		this.classList.remove('active');
+		elms.chat_wrap.classList.add('active');
+	})
+})
+SDF('close_chat_btn', 'click', () => {
+	elms.chat_wrap.classList.remove('active');
+	document.querySelectorAll('.open_chat_btn').forEach((btn) => {
+		btn.classList.add('active');
+	})
+})
+SDF(elms.chat_form, 'submit', function(e) {
+	e.preventDefault();
+	e.stopPropagation();
+	const msg = elms.chat_input.value;
+	if (msg.length === 0) return;
+	if (msg.length > 100) {
+		createNotice('メッセージは100文字以内にしてください');
+		return;
+	}
+	elms.chat_input.value = '';
+	sendChat(msg);
+})
+
+function sendChat(msg) {
+	socket.emit('chat msg', msg);
+}
+
+socket.on('user chat', (data) => {
+	addChat(data)
+})
+
+// msg, sender, socketid, type
+function addChat(data) {
+	const tmp = elms.chat_tmp;
+	const area = elms.chat_area;
+	const clone = tmp.content.cloneNode(true);
+	const item = clone.querySelector('.chat_item');
+	item.dataset.sender = data.sender;
+	if (data.socketid !== undefined) item.dataset.socketid = data.socketid;
+	const type = data.type || 0;
+	item.dataset.type = type;
+	item.querySelector('.chat_msg').textContent = data.msg;
+	item.querySelector('.chat_sender').textContent = data.sender;
+	item.querySelector('.chat_time').textContent = formatDate(new Date(), 'hh:mm:ss');
+	area.append(clone);
+
+	area.scrollTop = area.scrollHeight;
 }

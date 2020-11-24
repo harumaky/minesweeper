@@ -8,7 +8,7 @@
 	<link rel="stylesheet" href="./css/reboot.css">
 	<link rel="stylesheet" href="./css/form.css">
 	<link rel="stylesheet" href="./css/style.css">
-	<link rel="icon" type="image/png" sizes="16x16" href="./img/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="./img/sdms.png">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
@@ -129,7 +129,7 @@
 				<div class="b_wrap" id="b_wrap">
 					<div class="b_head">
 						<div class="b_head_flags_outer b_head_item">
-							<img src="./img/flag.png" alt="" class="b_head_flag_img" width="30px">
+							<img src="./img/flag.svg" alt="" class="b_head_flag_img" width="30px">
 							<p id="h_flags"></p>
 						</div>
 
@@ -161,7 +161,9 @@
 
 			<div class="menu" id="menu">
 				<button id="close_menu_btn" class="close_menu_btn">とじる</button>
-				<button class="quit_btn" id="exit_btn"><span>Exit Game</span></button>
+				<button class="quit_btn btn-shima" id="exit_btn"><span>Exit Game</span></button>
+				<button class="open_chat_btn in_menu btn-shima active"><span>Chat</span></button>
+
 				<button class="widen_menu_btn" id="widen_menu_btn" data-display="&lt|"></button>
 				<div class="menu_common">
 					<h3>状態：<span id="b_status"></span></h3>
@@ -177,7 +179,7 @@
 						<div class="opp_wrap" id="opp_wrap">
 							<div class="opp_head" id="opp_head">
 								<div class="opp_head_flags_outer opp_head_item">
-									<img src="./img/flag.png" alt="" class="b_head_flag_img" width="30px">
+									<img src="./img/flag.svg" alt="" class="b_head_flag_img" width="30px">
 									<p id="opp_flags"></p>
 								</div>
 							</div>
@@ -221,6 +223,32 @@
 					<button id="close_fail_modal" class="close_result_modal"><span>CLOSE</span></button>
 					<button class="restart_btn active"><span>RESTART</span></button>
 				</div>
+			</div>
+		</div>
+
+
+		<template id="chat_tmp">
+			<li class="chat_item">
+				<span class="chat_sender"></span>
+				<span class="chat_time"></span>
+				<p class="chat_msg"></p>
+			</li>
+		</template>
+
+		<button class="open_chat_btn right-top box-grow text-grow active">Chat</button>
+		<div class="chat_wrap" id="chat_wrap">
+			<div class="chat">
+				<div class="chat_head">
+					<button class="chat_close" id="close_chat_btn"></button>
+					<h3>グローバルチャット</h3>
+				</div>
+				<ul class="chat_area" id="chat_area">
+
+				</ul>
+				<form class="chat_control" id="chat_form">
+					<input type="text" class="chat_input" placeholder="入力してください" id="chat_input">
+					<button type="submit" class="chat_submit" id="chat_submit_btn"></button>
+				</form>
 			</div>
 		</div>
 

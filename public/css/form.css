@@ -87,7 +87,7 @@ input {
 
 /* inputにフォーカスが当たっている時 */
 input:focus {
-	border-bottom: 2px solid #55f355;
+	border-bottom: 2px solid rgb(64,117,28);
 }
 
 /* range */

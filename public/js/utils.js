@@ -140,7 +140,8 @@ function setElms() {
 		'f_width', 'f_height', 'f_bomb', 'g_wrap', 'g_field', 'board', 'b_wrap', 'b_status', 
 		'menu', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time',
 		'clear_result_time', 'fail_result_time',
-		'opp', 'opp_head', 'opp_field', 'opp_name', 'opp_status', 'opp_width', 'opp_height', 'opp_flags', 'opp_wrap', 'opp_board', 'opp_waiting'
+		'opp', 'opp_head', 'opp_field', 'opp_name', 'opp_status', 'opp_width', 'opp_height', 'opp_flags', 'opp_wrap', 'opp_board', 'opp_waiting',
+		'chat_wrap', 'chat_form', 'chat_input', 'chat_tmp', 'chat_area'
 	];
 	let elms = {};
 	for (let i = 0; i < elm_ids.length; i++) {
@@ -293,3 +294,19 @@ class RandomTextGenerator {
 	};
 };
 export const randTextGenerator = new RandomTextGenerator();
+
+export function formatDate(date, format) {
+	if (!format) format = 'YYYY-MM-DD hh:mm:ss.SSS';
+	format = format.replace(/YYYY/g, date.getFullYear());
+	format = format.replace(/MM/g, ('0' + (date.getMonth() + 1)).slice(-2));
+	format = format.replace(/DD/g, ('0' + date.getDate()).slice(-2));
+	format = format.replace(/hh/g, ('0' + date.getHours()).slice(-2));
+	format = format.replace(/mm/g, ('0' + date.getMinutes()).slice(-2));
+	format = format.replace(/ss/g, ('0' + date.getSeconds()).slice(-2));
+	if (format.match(/S/g)) {
+	  let milliSeconds = ('00' + date.getMilliseconds()).slice(-3);
+	  let length = format.match(/S/g).length;
+	  for (let i = 0; i < length; i++) format = format.replace(/S/, milliSeconds.substring(i, i + 1));
+	}
+	return format;
+  };

@@ -127,6 +127,16 @@ io.on('connection', (socket) => {
 		}
 	});
 
+	// chat
+	socket.on('chat msg', (msg) => {
+		const data = {
+			msg: msg,
+			sender: socket.username,
+			socketid: socket.id,
+		}
+		io.emit('user chat', data);
+	});
+
 	socket.on('disconnect', () => {
 		if (socket.isLoggedin) {
 			num_users--;
