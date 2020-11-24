@@ -1,5 +1,6 @@
 'use strict';
 const version = require('./package.json').version;
+const env = process.env.NODE_ENV;
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
@@ -11,10 +12,10 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.get('/', (req, res) => {
 	res.render('index', {
-		version: version
+		version: version,
+		env: env
 	});
 });
-
 
 let num_users = 0; // logged in users
 let rooms = [];
@@ -37,7 +38,9 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('debug', () => {
-		console.log(rooms);
+		if (env === 'development') {
+			console.log(rooms);
+		}
 	})
 
 	// data -> owner, W, H, B

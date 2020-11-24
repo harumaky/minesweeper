@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-env="<%= env %>">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
@@ -162,6 +162,7 @@
 			<div class="menu" id="menu">
 				<button id="close_menu_btn" class="close_menu_btn">とじる</button>
 				<button class="quit_btn" id="exit_btn"><span>Exit Game</span></button>
+				<button class="widen_menu_btn" id="widen_menu_btn" data-display="&lt|"></button>
 				<div class="menu_common">
 					<p>ここにはゲームの難易度などが表示される予定です</p>
 				</div>
@@ -174,7 +175,7 @@
 					<h3>状態：<span id="opp_status"></span></h3>
 					<div class="opp_field" id="opp_field">
 						<div class="opp_wrap" id="opp_wrap">
-							<div class="opp_head">
+							<div class="opp_head" id="opp_head">
 								<div class="opp_head_flags_outer opp_head_item">
 									<img src="./img/flag.png" alt="" class="b_head_flag_img" width="30px">
 									<p id="opp_flags"></p>
@@ -234,6 +235,6 @@
 		document.getElementById("screen").style.height = window.innerHeight + 'px';
 	</script>
 	<script src="/socket.io/socket.io.js"></script>
-	<script src="./js/app.js" type="module"></script>
+	<script src="./js/App.js" type="module"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 'use strict';
-import { socket, SDF, getDOM, wait, flatten, elms, SE, loadStart, loadCompleted, createNotice, openGameConfig, closeGameConfig } from './utils.js';
+import { devlog, socket, SDF, getDOM, wait, flatten, elms, SE, loadStart, loadCompleted, createNotice, openGameConfig, closeGameConfig } from './utils.js';
 import { myroom } from './myroom.js';
 import { MS } from './MS.js';
 
@@ -17,16 +17,18 @@ export async function initiate(type, width, height, bomb, room = {}) {
 	const c_height = elms.screen.clientHeight;
 
 	let style; // layoutstyle
-	if (c_width < c_height && c_width < 1024) {
+	if (c_width < c_height) {
+		// 画面が縦長の場合
 		style = "A";
 		if (c_width < 1024 && width > height) {
+			// 画面の幅が狭く、ボードの幅が大きいときは反転
 			createNotice('レイアウト調整のため指定した幅と高さが反転しました');
 			[width, height] = [height, width];
 		}
 	} else if (width > height) {
-		style = "B";
+		style = "B"; // 今のところAと同じ
 	} else if (width <= height) {
-		style = "C";
+		style = "C"; // 40%右がメニューになる
 	} else {
 		style = "A"; // とりあえず
 	}
@@ -56,7 +58,7 @@ export async function initiate(type, width, height, bomb, room = {}) {
 	elms.b_wrap.style.height = squareSize * height + 50 + 'px';
 
 	game.onInit(function() {
-		console.log(`playcount: ${this.playcount}`);
+		devlog(`playcount: ${this.playcount}`);
 		loadCompleted();
 		gamehandler(this);
 	});
@@ -174,8 +176,8 @@ function gamehandler(game) {
 		}
 	});
 	game.onDestroy(function() {
-		console.log("destroyed");
-		console.log(this);
+		devlog("destroyed");
+		devlog(this);
 	});
 }
 
@@ -194,8 +196,8 @@ socket.on('opp firstdata', (data) => {
 	elms.opp.classList.add('active');
 });
 socket.on('opp change', (data) => {
-	console.log('opponent changed board');
-	console.log(data);
+	devlog('opponent changed board↓');
+	devlog(data);
 	updateOppBoard(data);
 });
 socket.on('opp failed', (time) => {
@@ -227,6 +229,7 @@ function createOppBoard(data) {
 
 	elms.opp_board.style.width = squareSize * W + 'px';
 	elms.opp_board.style.height = squareSize * H + 'px';
+	elms.opp_head.style.width = squareSize * W + 'px';
 	elms.opp_wrap.style.width = squareSize * W + 'px';
 	elms.opp_wrap.style.height = squareSize * H + 50 + 'px';
 

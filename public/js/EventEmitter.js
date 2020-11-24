@@ -12,8 +12,7 @@ export class EventEmitter {
 		listenerSet.add(listener);
 	}
 
-	emit(type, debugname = "none") {
-		// console.log(`Emit "${type}" of ${debugname}`);
+	emit(type) {
 		const listenerSet = this._listeners.get(type);
 		if (!listenerSet) return;
 		listenerSet.forEach(listener => {listener.call(this)});

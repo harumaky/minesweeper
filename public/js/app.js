@@ -1,11 +1,19 @@
 'use strict';
 import { initiate } from './GameHandler.js';
 import { myroom } from './myroom.js';
-import { SDF, getDOM, elms, wait, createNotice, createRoomCard, SE, socket, level_templates, loadCompleted, loadStart, randTextGenerator, openGameConfig, closeGameConfig } from './utils.js';
+import { env, devlog, SDF, getDOM, elms, wait, createNotice, createRoomCard, SE, socket, level_templates, loadCompleted, loadStart, randTextGenerator, openGameConfig, closeGameConfig } from './utils.js';
 
 SE.load();
+SE.triedLoad(function() {
+	if (SE.status === 'loaded') {
+		console.log(`All sound effects loaded in ${new Date() - SE.initTime}ms`);
+	} else {
+		createNotice('音源の読み込みに失敗しました');
+	}
+});
+
 socket.on('initial info', (data) => {
-	console.log(data);
+	devlog(data);
 	updateUserNumber(data.users)
 	data.rooms.forEach((room) => {
 		createRoomCard(room);
@@ -22,9 +30,11 @@ socket.on('log', (msg) => {
 	createNotice(msg);
 });
 
-SDF('main-title', 'click', function() {
-	socket.emit('debug');
-});
+if (env === 'development') {
+	SDF('main-title', 'click', function() {
+		socket.emit('debug');
+	});
+}
 
 
 SDF('allow_sound', 'click', function() { 
@@ -130,8 +140,8 @@ socket.on('room removed', (id) => {
 	try {
 		getDOM(`room_card_${id}`).remove();
 	} catch (e) {
-		console.log('なんらかの理由で既にないルームカードを消そうとしました');
-		console.log(e);
+		devlog('なんらかの理由で既にないルームカードを消そうとしました');
+		devlog(e);
 	}
 });
 
@@ -317,11 +327,23 @@ function validateBomb() {
 	return result;
 }
 
-SDF('open_menu_btn', 'click', function() {
+SDF('open_menu_btn', 'click', () => {
 	elms.menu.classList.add('active');
 });
-SDF('close_menu_btn', 'click', function() {
+SDF('close_menu_btn', 'click', () => {
 	elms.menu.classList.remove('active');
+});
+
+SDF('widen_menu_btn', 'click', function() {
+	const wrap = elms.g_wrap;
+	const isWidend = wrap.classList.contains('menu_widened');
+	if (isWidend) {
+		wrap.classList.remove('menu_widened');
+		this.dataset.display = '<|';
+	} else {
+		wrap.classList.add('menu_widened');
+		this.dataset.display = '|>';
+	}
 });
 
 

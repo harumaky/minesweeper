@@ -1,15 +1,14 @@
 'use strict';
 import { SEHandler } from './SEHandler.js';
+export const env = document.querySelector('html').dataset.env;
 export const SE = new SEHandler();
 export const socket = io();
 
-SE.triedLoad(function() {
-	if (SE.status === 'loaded') {
-		console.log(`All sound effects loaded in ${new Date() - SE.initTime}ms`);
-	} else {
-		createNotice('音源の読み込みに失敗しました');
+export function devlog(msg) {
+	if (env === 'development') {
+		console.log(msg);
 	}
-});
+}
 
 /**
  * wait
@@ -84,7 +83,7 @@ export function createNotice(msg, important = false) {
 		try {
 			wrap.removeChild(body);
 		} catch(e) {
-			console.log('既に削除された通知を自動削除しようとした');
+			devlog('既に削除された通知を自動削除しようとした');
 		}
 	}, 6000);
 	wrap.prepend(clone);
@@ -140,7 +139,7 @@ function setElms() {
 		'solo_btn', 'multi_btn', 'rooms_wrap', 'waiting_screen', 'matched_screen', 'g_config', 
 		'f_width', 'f_height', 'f_bomb', 'g_wrap', 'g_field', 'board', 'b_wrap', 
 		'menu', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time',
-		'opp', 'opp_field', 'opp_name', 'opp_status', 'opp_width', 'opp_height', 'opp_flags', 'opp_wrap', 'opp_board', 'opp_waiting'
+		'opp', 'opp_head', 'opp_field', 'opp_name', 'opp_status', 'opp_width', 'opp_height', 'opp_flags', 'opp_wrap', 'opp_board', 'opp_waiting'
 	];
 	let elms = {};
 	for (let i = 0; i < elm_ids.length; i++) {
