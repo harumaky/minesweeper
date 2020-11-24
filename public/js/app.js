@@ -261,6 +261,7 @@ function setTemplate(array) {
  * @returns {Object} .messages (array)
  */
 function configValidation() {
+	const isMulti = elms.g_config.classList.contains('multi');
 	let result = {
 		isOK: true,
 		messages: []
@@ -280,13 +281,14 @@ function configValidation() {
 	// now they are all numbers
 	const W = elms.f_width.value;
 	const H = elms.f_height.value;
+	const max = isMulti ? 36 : 50;
 
 	[elms.f_width, elms.f_height].forEach((input, i) => {
 		const val = input.value;
-		if (val < 6 || val > 50) {
+		if (val < 6 || val > max) {
 			input.classList.add('warn');
 			result.isOK = false;
-			result.messages.push(`${names[i]}の大きさは6~50以内にしてください`);
+			result.messages.push(`${names[i]}の大きさは6~${max}以内にしてください`);
 		} else {
 			input.classList.remove('warn');
 		}

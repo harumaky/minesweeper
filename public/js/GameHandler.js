@@ -166,7 +166,7 @@ function gamehandler(game) {
 	game.onGameClear(function() {
 		SE.play('win');
 		elms.clear_result_time.textContent = this.lastTime;
-		elms.b_status.textContent = `クリア（時刻：${this.lasttime}）`;
+		elms.b_status.textContent = `クリア（時刻：${this.lastTime}）`;
 		wait(500).then(() => {
 			getDOM('clear_modal').classList.add('active');
 		});
