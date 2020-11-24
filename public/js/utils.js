@@ -137,8 +137,9 @@ function setElms() {
 	const elm_ids = [
 		'screen', 'lobby', 'user_number', 'user_form', 'f_username', 'main_options', 
 		'solo_btn', 'multi_btn', 'rooms_wrap', 'waiting_screen', 'matched_screen', 'g_config', 
-		'f_width', 'f_height', 'f_bomb', 'g_wrap', 'g_field', 'board', 'b_wrap', 
+		'f_width', 'f_height', 'f_bomb', 'g_wrap', 'g_field', 'board', 'b_wrap', 'b_status', 
 		'menu', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time',
+		'clear_result_time', 'fail_result_time',
 		'opp', 'opp_head', 'opp_field', 'opp_name', 'opp_status', 'opp_width', 'opp_height', 'opp_flags', 'opp_wrap', 'opp_board', 'opp_waiting'
 	];
 	let elms = {};
@@ -164,6 +165,17 @@ export function getElmByCoord(x, y, opp = false) {
 		return document.querySelector(`.board [data-x='${x}'][data-y='${y}']`);
 	} 
 	return document.querySelector(`.opp_board [data-x='${x}'][data-y='${y}']`);
+}
+
+/**
+ * c
+ * @param {Number} size 
+ * @param {Number} bomb 
+ * @param {Number} digged 
+ * @returns {Number} % (to one decimal place)
+ */
+export function calcProgress(size, bomb, digged) {
+	return Math.round((digged / (size - bomb)) * 1000) / 10;
 }
 
 /**

@@ -23,6 +23,7 @@ export class MS extends EventEmitter {
 
 		this.width = width;
 		this.height = height;
+		this.size = width * height;
 		this.bombAmount = bombAmount;
 		this.squareSize = squareSize;
 		this.style = style;
@@ -114,7 +115,7 @@ export class MS extends EventEmitter {
 		if (xEdge && yEdge) safe_amount++;
 
 		const bombsArray = Array(this.bombAmount).fill(1);
-		const emptyArray = Array(this.width*this.height - this.bombAmount - safe_amount).fill(0);
+		const emptyArray = Array(this.size - this.bombAmount - safe_amount).fill(0);
 		
 		let oneD_Array = emptyArray.concat(bombsArray);
 		oneD_Array = shuffle(oneD_Array);
@@ -388,7 +389,7 @@ export class MS extends EventEmitter {
 	checkGame() {
 		if (this.status === 'ended') return;
 		const digged_amount = flatten(this.diggedArray).filter(e => e).length;
-		if (digged_amount === this.width*this.height - this.bombAmount) {
+		if (digged_amount === this.size - this.bombAmount) {
 			this.gameEnd('clear');
 		}
 	}

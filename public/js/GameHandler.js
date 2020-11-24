@@ -1,5 +1,5 @@
 'use strict';
-import { devlog, socket, SDF, getDOM, wait, flatten, elms, SE, loadStart, loadCompleted, createNotice, openGameConfig, closeGameConfig } from './utils.js';
+import { devlog, socket, SDF, getDOM, wait, flatten, calcProgress, elms, SE, loadStart, loadCompleted, createNotice, openGameConfig, closeGameConfig } from './utils.js';
 import { myroom } from './myroom.js';
 import { MS } from './MS.js';
 
@@ -68,6 +68,7 @@ export async function initiate(type, width, height, bomb, room = {}) {
 
 function gamehandler(game) {
 	const isMulti = game.type === 'multi';
+	elms.b_status.textContent = `はじめの一手を待っています`;
 	game.onGameStart(function() {
 		if (isMulti) {
 			const data = {
@@ -119,6 +120,11 @@ function gamehandler(game) {
 		}
 		const flag_reminder = this.bombAmount - flatten(this.flagArray).filter(e => e).length;
 		elms.h_flags.textContent = flag_reminder;
+
+		const digged_amount = flatten(this.diggedArray).filter(e => e).length;
+		const progress = calcProgress(this.size, this.bombAmount, digged_amount);
+		elms.b_status.textContent = `完成度${progress}%`;
+
 		if (isMulti) {
 			const data = {
 				id: game.room.id,
@@ -143,7 +149,9 @@ function gamehandler(game) {
 		SE.play('bomb');
 		SE.play('tin');
 		elms.board.classList.add('failed');
-		getDOM('fail_result_time').textContent = this.lastTime;
+		elms.fail_result_time.textContent = this.lastTime;
+		elms.b_status.textContent = `失敗（時刻：${this.lastTime}）`;;
+
 		wait(500).then(() => {
 			getDOM('fail_modal').classList.add('active');
 		});
@@ -157,7 +165,8 @@ function gamehandler(game) {
 	});
 	game.onGameClear(function() {
 		SE.play('win');
-		getDOM('clear_result_time').textContent = this.lastTime;
+		elms.clear_result_time.textContent = this.lastTime;
+		elms.b_status.textContent = `クリア（時刻：${this.lasttime}）`;
 		wait(500).then(() => {
 			getDOM('clear_modal').classList.add('active');
 		});
@@ -278,7 +287,7 @@ function updateOppBoard(data) {
 	}
 	elms.opp_flags.textContent = data.flag_reminder;
 	const digged_amount = flatten(data.digged).filter(e => e).length;
-	const progress = Math.round((digged_amount / (game.width * game.height - game.bombAmount)) * 1000) / 10;
+	const progress = calcProgress(game.size, game.bombAmount, digged_amount);
 	elms.opp_status.textContent = `完成度${progress}%`;
 }
 
