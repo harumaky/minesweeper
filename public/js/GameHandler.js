@@ -110,7 +110,7 @@ function gamehandler(game) {
 		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
 				const square = getDOM(id)
-				if (this.flagArray[y][x]) square.classList.add('flag');
+				if (this.flaggedArray[y][x]) square.classList.add('flag');
 				else square.classList.remove('flag');
 	
 				if (this.diggedArray[y][x]) square.classList.add('digged');
@@ -118,7 +118,7 @@ function gamehandler(game) {
 				id++;
 			}
 		}
-		const flag_reminder = this.bombAmount - flatten(this.flagArray).filter(e => e).length;
+		const flag_reminder = this.bombAmount - flatten(this.flaggedArray).filter(e => e).length;
 		elms.h_flags.textContent = flag_reminder;
 
 		const digged_amount = flatten(this.diggedArray).filter(e => e).length;
@@ -130,7 +130,7 @@ function gamehandler(game) {
 				id: game.room.id,
 				board: game.boardArray,
 				digged: game.diggedArray,
-				flag: game.flagArray,
+				flag: game.flaggedArray,
 				flag_reminder: flag_reminder
 			}
 			socket.emit('board change', data);

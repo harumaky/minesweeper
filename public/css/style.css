@@ -564,7 +564,7 @@ input.warn {
 }
 
 .board.failed .bomb, .opp_board.failed .bomb {
-	background: red;
+	background: rgb(255, 70, 70);
 }
 .opp_board.exited::after {
 	content: '';
@@ -983,6 +983,10 @@ input.warn {
 	background-size: contain;
 	background-color: rgb(63, 116, 26);;
 	border-radius: unset;
+}
+
+html[data-env='development'] .square.bomb {
+	background: rgba(255,50,50,0.5);
 }
 
 @media screen and (max-width:480px) {

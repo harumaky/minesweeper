@@ -42,7 +42,7 @@ export class MS extends EventEmitter {
 		this.room = room
 
 		this.boardArray = []; // true -> bomb false -> valid
-		this.flagArray = []; // true -> flagged
+		this.flaggedArray = []; // true -> flagged
 		this.diggedArray = []; // true -> digged
 		this.numsArray = []; // shows the amount of bombs around it
 
@@ -134,7 +134,7 @@ export class MS extends EventEmitter {
 		let oneD_idx = 0;
 		for (let y = 0; y < this.height; y++) {
 			this.boardArray[y] = Array(this.width).fill(0);
-			this.flagArray[y] = Array(this.width).fill(0);
+			this.flaggedArray[y] = Array(this.width).fill(0);
 			this.diggedArray[y] = Array(this.width).fill(0);
 			this.numsArray[y] = Array(this.width).fill(9);
 			for (let x = 0; x < this.width; x++) {
@@ -151,8 +151,7 @@ export class MS extends EventEmitter {
 					(!noRight && !noBelow && oneD_pointer === init_idx + this.width + 1)
 					) 
 				{
-					// 初期周囲点の場合のboardArrayはデフォルトのfalse
-					continue;
+					continue; // safe_amount回, boardArrayは0確定（デフォルト値）
 				}
 				this.boardArray[y][x] = oneD_Array[oneD_idx];
 				oneD_idx++;
@@ -226,8 +225,12 @@ export class MS extends EventEmitter {
 			return;
 		}
 		
+		/* クリックした場所が、前のbigdigによってクリック後に掘られた場合、
+		既に掘られた場所に旗を設置できてしまう。
+		よって、すでに掘られていても、そこに旗があったらそれをselect可能にする
+		*/
+		if (this.diggedArray[y][x] && !this.flaggedArray[y][x]) return;
 		// 掘れる場所が確定して、一気にやる機能はスキップ
-		if (this.diggedArray[y][x]) return;
 
 		this.select(x, y);
 	}
@@ -275,7 +278,7 @@ export class MS extends EventEmitter {
 			setTopLeft(elms.sel_unflag, base.top, base.left + size*1.2);
 		}
 
-		if (this.flagArray[y][x]) {
+		if (this.flaggedArray[y][x]) {
 			// if flaged, hide flag and dig btn
 			elms.sel_flag.style.display = 'none';
 			elms.sel_dig.style.display = 'none';
@@ -295,26 +298,24 @@ export class MS extends EventEmitter {
 			return;
 		}
 
-		// check whether bigdig is possible
-		// if not, just one dig
-
-		// digAroundIfPossible
+		
 		let bigdigPossible = this.numsArray[y][x] === 0;
+		// さらに、周りにフラッグがないとき発動できる
 		if (bigdigPossible) {
-			// only possible when there's no flag around it
-			if (y > 0) {
-				if (this.flagArray[y-1][x-1] || this.flagArray[y-1][x] || this.flagArray[y-1][x]) bigdigPossible = false;
-			}
-			if (this.flagArray[y][x-1] || this.flagArray[y][x+1]) bigdigPossible = false;
-			if (y < this.height-1) {
-				if (this.flagArray[y+1][x-1] || this.flagArray[y+1][x] || this.flagArray[y+1][x+1]) bigdigPossible = false;
+			for (let i = 0; i < 8; i++) {
+				const nX = x + aroundIndices[i][0];
+				const nY = y + aroundIndices[i][1];
+				if (!this.isInField(nX, nY)) continue;
+				if (this.flaggedArray[nY][nX]) {
+					bigdigPossible = false;
+					break;
+				}
 			}
 		}
 		
 		if (bigdigPossible) {
-			this.diggedArray[y][x] = 1; // normal dig
-			this.bigdig(x, y);
-			this.emit('bigdigStarted');
+			this.digAround(x, y);
+			this.emit('bigdigStarted'); // endedを検知するのは難しい..
 		} else {
 			this.diggedArray[y][x] = 1;
 			this.emit('digged');
@@ -325,48 +326,43 @@ export class MS extends EventEmitter {
 		this.unselect();
 	}
 
-	bigdig(x, y) {
-		this.digAround(x,y);
-	}
-
 	digAround(x, y) {
-		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				for ([dX, dY] in aroundIndex) {
-					if (!this.isInField(x, y)) continue;
-					this.digAround_ifpossible(x + dX, y + dY);
-					this.diggedArray[x + dX][y + dY] = 1;
-				}
-				this.emit('changed');
-				this.checkGame();
-				resolve();
-			}, 10);
-		});
-	}
+		setTimeout(() => {
+			this.diggedArray[y][x] = 1;
+			for (let i = 0; i < 8; i++) {
+				const nX = x + aroundIndices[i][0];
+				const nY = y + aroundIndices[i][1];
+				
+				// 周りで範囲外ならスキップ、掘ってあったり旗がある場合もスキップ
+				if (!this.isInField(nX, nY)) continue;
+				if (this.diggedArray[nY][nX] || this.flaggedArray[nY][nX]) continue;
+				this.diggedArray[nY][nX] = 1;
 
-	digAround_ifpossible(x, y) {
-		if (this.isInField(x, y)) {
-			if (this.numsArray[y][x] === 0 && !this.diggedArray[y][x] && !this.flagArray[y][x]) {
-				this.digAround(x, y);
-				return true
+				// もし、ある掘った周りのマス１つが0だった場合、その周りも掘る
+				if (this.numsArray[nY][nX] === 0 && !this.flaggedArray[nY][nX]) {
+					this.digAround(nX, nY);
+				}
 			}
-		}
-		return false;
+			this.emit('changed');
+			this.checkGame();
+			
+		}, 100);
+		
 	}
 
 	isInField(x, y) {
-		return 0 <= x && x < this.width && 0 <= y && y < this.height
+		return 0 <= x && x < this.width && 0 <= y && y < this.height;
 	}
 
 	flag() {
-		this.flagArray[this.sel_y][this.sel_x] = 1;
+		this.flaggedArray[this.sel_y][this.sel_x] = 1;
 		this.emit('flagged');
 		this.emit('changed');
-		this.checkGame()
+		this.checkGame();
 		this.unselect();
 	}
 	unflag() {
-		this.flagArray[this.sel_y][this.sel_x] = 0;
+		this.flaggedArray[this.sel_y][this.sel_x] = 0;
 		this.emit('unflagged');
 		this.emit('changed');
 		this.checkGame();
