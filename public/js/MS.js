@@ -2,6 +2,17 @@
 import { EventEmitter } from './EventEmitter.js';
 import { shuffle, flatten, getElmByCoord, setStyleSquare, setTopLeft, getDOM, elms} from './utils.js';
 
+const aroundIndices = [
+	[-1, -1],
+	[+0, -1],
+	[+1, -1],
+	[+1, +0],
+	[+1, +1],
+	[+0, +1],
+	[-1, +1],
+	[-1, +0],
+]
+
 export class MS extends EventEmitter {
 	constructor() {
 		super();
@@ -321,25 +332,10 @@ export class MS extends EventEmitter {
 	digAround(x, y) {
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
-				this.digAround_ifpossible(x-1, y-1);
-				this.digAround_ifpossible(x, y-1);
-				this.digAround_ifpossible(x+1, y-1);
-				this.digAround_ifpossible(x-1, y);
-				this.digAround_ifpossible(x+1, y);
-				this.digAround_ifpossible(x-1, y+1);
-				this.digAround_ifpossible(x, y+1);
-				this.digAround_ifpossible(x+1, y+1);
-				if (y > 0) {
-					if (x > 0) this.diggedArray[y-1][x-1] = 1;
-					this.diggedArray[y-1][x] = 1;
-					if (x < this.width-1) this.diggedArray[y-1][x+1] = 1;
-				}
-				if (x > 0) this.diggedArray[y][x-1] = 1;
-				if (x < this.width-1) this.diggedArray[y][x+1] = 1;
-				if (y < this.height-1) {
-					if (x < 0) this.diggedArray[y+1][x-1] = 1;
-					this.diggedArray[y+1][x] = 1;
-					if (x < this.width-1) this.diggedArray[y+1][x+1] = 1;
+				for ([dX, dY] in aroundIndex) {
+					if (!this.isInField(x, y)) continue;
+					this.digAround_ifpossible(x + dX, y + dY);
+					this.diggedArray[x + dX][y + dY] = 1;
 				}
 				this.emit('changed');
 				this.checkGame();
@@ -349,13 +345,17 @@ export class MS extends EventEmitter {
 	}
 
 	digAround_ifpossible(x, y) {
-		if (x >= 0 && x <= this.width-1 && y >= 0 && y <= this.height-1) {
+		if (this.isInField(x, y)) {
 			if (this.numsArray[y][x] === 0 && !this.diggedArray[y][x] && !this.flagArray[y][x]) {
 				this.digAround(x, y);
 				return true
 			}
 		}
 		return false;
+	}
+
+	isInField(x, y) {
+		return 0 <= x && x < this.width && 0 <= y && y < this.height
 	}
 
 	flag() {
