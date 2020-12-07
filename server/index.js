@@ -1,5 +1,5 @@
 'use strict';
-const version = require('./package.json').version;
+const version = require('../package.json').version;
 const env = process.env.NODE_ENV;
 const express = require('express');
 const app = express();
