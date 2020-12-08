@@ -1,5 +1,6 @@
 'use strict';
 const version = require('../package.json').version;
+const history = require('../history.json').reverse();
 const env = process.env.NODE_ENV;
 const express = require('express');
 const app = express();
@@ -13,7 +14,8 @@ app.use(express.static('public'));
 app.get('/', (req, res) => {
 	res.render('index', {
 		version: version,
-		env: env
+		env: env,
+		history: history
 	});
 });
 

@@ -67,14 +67,14 @@ export function getDOM(id) {
  */
 let notice_id = 0;
 export function createNotice(msg, important = false) {
-	const tmp = getDOM('notice_tmp');
-	const wrap = getDOM('notice_wrap');
+	const tmp = getDOM('notice__tmp');
+	const wrap = getDOM('notice__wrap');
 	const clone = tmp.content.cloneNode(true);
 	const body = clone.querySelector('.notice');
 	body.setAttribute('id', `notice_${notice_id}`);
 	if (important) body.classList.add('important');
-	const msg_elm = clone.querySelector('.notice_msg');
-	const close_btn = clone.querySelector('.notice_close');
+	const msg_elm = clone.querySelector('.notice__msg');
+	const close_btn = clone.querySelector('.notice__close');
 	msg_elm.textContent = msg;
 	close_btn.addEventListener('click', function() {
 		wrap.removeChild(body);
@@ -101,20 +101,20 @@ export function createNotice(msg, important = false) {
  * arg.status (waiting/matched/ongame)
  */
 export function createRoomCard(arg) {
-	const tmp = getDOM('room_card_tmp');
+	const tmp = getDOM('roomcard__tmp');
 	const rooms = getDOM('rooms');
 	const clone = tmp.content.cloneNode(true);
-	const card = clone.querySelector('.room_card');
-	card.setAttribute('id', `room_card_${arg.id}`);
+	const card = clone.querySelector('.roomcard');
+	card.setAttribute('id', `roomcard__${arg.id}`);
 	const status = arg.status;
 	card.dataset.status = status;
-	clone.querySelector('.room_card_status').textContent = roomStatusToJP[status];
-	clone.querySelector('.room_card_owner').textContent = arg.owner;
-	clone.querySelector('.room_card_width').textContent += arg.width;
-	clone.querySelector('.room_card_height').textContent += arg.height;
-	clone.querySelector('.room_card_bomb').textContent += arg.bomb;
-	const join_btn = clone.querySelector('.room_card_join');
-	const observe_btn = clone.querySelector('.room_card_observe');
+	clone.querySelector('.roomcard__status').textContent = roomStatusToJP[status];
+	clone.querySelector('.roomcard__owner').textContent = arg.owner;
+	clone.querySelector('.roomcard__width').textContent += arg.width;
+	clone.querySelector('.roomcard__height').textContent += arg.height;
+	clone.querySelector('.roomcard__bomb').textContent += arg.bomb;
+	const join_btn = clone.querySelector('.roomcard__join');
+	const observe_btn = clone.querySelector('.roomcard__observe');
 	join_btn.dataset.roomid = arg.id;
 	join_btn.addEventListener('click', () => {socket.emit('join room', arg.id)});
 	observe_btn.dataset.roomid = arg.id;
@@ -135,13 +135,12 @@ const roomStatusToJP = {
 
 function setElms() {
 	const elm_ids = [
-		'screen', 'lobby', 'user_number', 'user_form', 'f_username', 'main_options', 
-		'solo_btn', 'multi_btn', 'rooms_wrap', 'waiting_screen', 'matched_screen', 'g_config', 
+		'screen', 'lobby', 'f_username', 'lobby__mainops', 'gconf',
+		'solo_btn', 'multi_btn', 'rooms__wrap',
 		'f_width', 'f_height', 'f_bomb', 'g_wrap', 'g_field', 'board', 'b_wrap', 'b_status', 
 		'menu', 'sel', 'sel_mask', 'sel_cancel', 'sel_dig', 'sel_flag', 'sel_unflag', 'h_flags', 'h_time',
 		'clear_result_time', 'fail_result_time',
 		'opp', 'opp_head', 'opp_field', 'opp_name', 'opp_status', 'opp_width', 'opp_height', 'opp_flags', 'opp_wrap', 'opp_board', 'opp_waiting',
-		'chat_wrap', 'chat_form', 'chat_input', 'chat_tmp', 'chat_area'
 	];
 	let elms = {};
 	for (let i = 0; i < elm_ids.length; i++) {
@@ -203,10 +202,10 @@ export const level_templates = {
 }
 
 export function loadCompleted() {
-	getDOM('loading_wrap').classList.add('slideout');
+	getDOM('loading__wrap').classList.add('slideout');
 }
 export function loadStart() {
-	getDOM('loading_wrap').classList.remove('slideout');
+	getDOM('loading__wrap').classList.remove('slideout');
 }
 
 export function isMultiByDOM() {
@@ -214,34 +213,34 @@ export function isMultiByDOM() {
 }
 
 export function openGameConfig(type) {
-	const title = getDOM('g_config_title');
-	const submit = getDOM('g_config_submit');
-	const back = getDOM('g_config_back');
+	const title = getDOM('gconf__head-title');
+	const submit = getDOM('gconf__submit');
+	const back = getDOM('gconf__head-back');
 	back.addEventListener('click', function() { closeGameConfig(type) }, {
 		once: true
 	})
 	if (type === 'solo') {
-		elms.g_config.classList.add('solo');
+		elms.gconf.classList.add('solo');
 		title.textContent = 'ソロプレイ';
 		submit.textContent = 'Start';
 		
 	} else if (type === 'multi') {
-		elms.g_config.classList.add('multi');
+		elms.gconf.classList.add('multi');
 		title.textContent = 'マルチ設定';
 		submit.textContent = 'ルーム作成';
 	}
-	elms.g_config.classList.add('active');
+	elms.gconf.classList.add('active');
 }
 export function closeGameConfig(type) {
 	if (type === 'solo') {
-		elms.g_config.classList.remove('active');
-		elms.g_config.classList.remove('solo');
-		elms.rooms_wrap.classList.remove('active'); // for some reason
-		elms.main_options.classList.add('active');
+		elms.gconf.classList.remove('active');
+		elms.gconf.classList.remove('solo');
+		elms.rooms__wrap.classList.remove('active'); // for some reason
+		elms.lobby__mainops.classList.add('active');
 	} else if (type === 'multi') {
-		elms.g_config.classList.remove('active');
-		elms.g_config.classList.remove('multi');
-		elms.rooms_wrap.classList.add('active')
+		elms.gconf.classList.remove('active');
+		elms.gconf.classList.remove('multi');
+		elms.rooms__wrap.classList.add('active')
 	} else {
 		console.error('不明なタイプで設定画面を閉じようとしました');
 	}

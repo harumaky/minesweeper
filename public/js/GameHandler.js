@@ -336,7 +336,7 @@ document.querySelectorAll('.restart_btn').forEach(elm => {
 	elm.addEventListener('click', function() {
 		getDOM('clear_modal').classList.remove('active');
 		getDOM('fail_modal').classList.remove('active');
-		getDOM('loading_wrap').classList.remove('slideout');
+		getDOM('loading__wrap').classList.remove('slideout');
 		const width = game.width;
 		const height = game.height;
 		const bombAmount = game.bombAmount;

@@ -11,6 +11,11 @@ super duper minesweeper
 
 `npm start`はサーバー起動のみ. herokuが実行する
 
+## note
+- 開発時には環境変数`NODE_ENV`を`development`にしておくと、`<html data-env="development">`となる
+- タイトルを押すとサーバーのデバッグ関数が発火したり、爆弾がすべて見えたりする
+- クライアントサイドで`devlog()`が使える
+
 ## play
 [latest version](https://ms.halabo.net)
 

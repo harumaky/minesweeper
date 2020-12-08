@@ -1,111 +1,14 @@
 @charset 'UTF-8';
 
 @import 'reboot.scss';
+@import 'vars.scss';
 @import 'form.scss';
+@import '_mq.scss';
+@import 'utils.scss';
 
-.text-grow {
-	text-shadow: 
-		0 0 0.05em #FFF59D,
-		0 0 0.06em #FFF59D,
-		0 0 0.07em #FFF59D,
-		0 0 0.08em #FFF59D,
-		0 0 0.09em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.50em #FFF59D;
-}
-.box-grow {
-	box-shadow:
-		0 0 0.05em #FFF59D,
-		0 0 0.06em #FFF59D,
-		0 0 0.07em #FFF59D,
-		0 0 0.08em #FFF59D,
-		0 0 0.09em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.20em #FFF59D,
-		0 0 0.50em #FFF59D;
-}
-.main-btn {
-	width: 300px;
-	font-size: 2.6rem;
-	background: rgba(255,255,255, 0.3);
-	font-weight: bold;
-	margin: 0 auto;
-}
-.main-btn:hover {
-	opacity: 0.6;
-	transition: all 0.8s;
-}
-
-.btn-shima {
-	display: block;
-	margin: 0 auto;
-	margin-bottom: 30px;
-	width: 80%;
-	font-size: 2rem;
-	padding: 1rem;
-	max-width: 300px;
-	border: 2px solid #000;
-	background-image: repeating-linear-gradient(
-	  -45deg,
-	  #000,
-	  #000 1px,
-	  transparent 2px,
-	  transparent 5px
-	);
-	background-size: 7px 7px;
-	backface-visibility: hidden;
-}
-.btn-shima > span {
-	position: relative;
-	display: block;
-	padding: 6px 12px;
-	color: #000;
-	border: 2px solid #000;
-	border-radius: 0.5rem;
-	background: #fff;
-}
-.btn-shima:hover {opacity: 0.6;}
-
-
-.loading_wrap {
-	position: absolute;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	z-index: 100;
-	top: 0; left: 0;
-	width: 100%;
-	height: 100%;
-	background: rgba(255,255,255,1);
-	transition: all 0.6s;
-}
-.loading_wrap.slideout {
-	top: -100%;
-}
-.loading {
-	width: 200px;
-	height: 200px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-wrap: wrap;
-}
-.loading_img {
-	display: inline-block;
-	width: 50px;
-}
-.loading_text {
-	width: 100%;
-	text-align: center;
-	animation: blinking 1s infinite ease-in-out;
-}
-@keyframes blinking {
-	0% {opacity: 1;}
-	50% {opacity: 0;}
-	100% {opacity: 1;}
+body {
+	color: $text;
+	font-family: $ff-normal;
 }
 
 .screen {
@@ -119,308 +22,20 @@
 	overflow: hidden;
 }
 
-.notice_wrap {
-	background: transparent;
-	position: fixed;
-	top: 0; right: 0;
-	padding: 10px;
-	z-index: 90;
-	width: 100%;
-	max-width: 300px;
-}
-.notice {
-	display: flex;
-	min-width: 50px;
-	background: rgba(255,255,255,0.96);
-	border-radius: 10px;
-	overflow: hidden;
-	animation: hide 1s ease-in 5s 1 normal both;
-	/* jsで6秒後に削除 */
-}
-.notice.important {
-	background: rgba(255, 161, 161, 0.96);
-	border: rgba(245, 45, 45, 0.96) solid 3px;
-}
-@keyframes hide {
-	0% {opacity: 1;}
-	100% {
-		display: none;
-		opacity: 0;
-	} 
-}
-.notice:not(:last-child) {
-	margin-bottom: 10px;
-}
-.notice_msg {
-	padding: 5px 8px;
-	align-self: center;
-	width: 70%;
-	word-wrap: break-word;
-	margin: 0;
-	display: inline;
-}
-.notice_close {
-	background: transparent;
-	width: 30%;
-	align-self: stretch;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin: 0;
-	padding: 0;
-}
-.notice_close:hover {
-	opacity: 0.6;
-	background: rgba(200,200,200,0.9);
-}
-.notice_close_img {
-	width: 40px;
-	height: 40px;
-	background-image: url('../img/del_black.svg');
-	background-repeat: no-repeat;
-	opacity: 0.8;
-}
+// block__element--modifier !!!
+@import 'block/loading.scss';
+@import 'block/header.scss';
+@import 'block/main.scss';
+@import 'block/notice.scss';
+@import 'block/chat.scss';
+@import 'block/detail.scss';
+@import 'block/history.scss';
+@import 'block/lobby.scss';
+@import 'block/gconf.scss';
+@import 'block/rooms.scss';
+@import 'block/roomcard.scss';
+@import 'block/matchwait.scss';
 
-
-.lobby {
-	opacity: 0;
-	transition: all 0.8s;
-}
-.lobby.active {
-	opacity: 1;
-}
-
-.title, .version {
-	font-size: 3.4rem;
-	padding-top: 60px;
-	padding-bottom: 10px;
-	text-align:center;
-	line-height:0.95em;
-	font-weight:bold;
-	color: #000;
-	position: relative;
-}
-.version {
-	font-size: 1.4rem;
-	position: absolute;
-	top: -30px; left: 0;
-	transform: rotate(-30deg);
-	animation: puyo 1s ease-in-out infinite;
-}
-@keyframes puyo {
-	0% {
-		transform: rotate(-30deg);
-	}
-	50% {
-		transform: rotate(-30deg) skew(-5deg, -5deg) scale(1.5);
-	}
-	100% {
-		transform: rotate(-30deg);
-	}
-}
-
-/* forms (username, mainoptions, gameconfig/roomconfig) */
-.g_config, .user_form, .main_options {
-	display: none;
-	text-align: center;
-	padding-top: 30px;
-	padding-bottom: 20px;
-}
-.user_form.active, .g_config.active, .main_options.active {
-	display: block;
-}
-
-.user_form {
-	background: rgba(255,255,255,0.6);
-	width: 90%;
-	max-width: 400px;
-	margin: 0 auto;
-	margin-bottom: 30px;
-	overflow: hidden;
-	border-radius: 10px;
-	text-align: center;
-}
-.user_form p {
-	padding: 1rem 2rem;
-	font-size: 1.4rem;
-	margin-bottom: 6px;
-	border-top: 3px dotted #000;
-	border-bottom: 3px dotted #000;
-}
-.user_form > .input_group {
-	padding: 20px 0;
-}
-.user_form input {
-	border: 2px solid #333;
-}
-
-.main_options > button {
-	margin-bottom: 20px;
-}
-
-.g_config_inputs, .g_config_templates, .g_config_head {
-	width: 90%;
-	max-width: 400px;
-	margin: 0 auto;
-	margin-bottom: 30px;
-	display: flex;
-	overflow: hidden;
-	justify-content: center;
-	border-radius: 10px;
-}
-.g_config_head {
-	border-radius: unset;
-	position: relative;
-}
-.g_config_head h2 {
-	font-size: 28px;
-	line-height: 28px;
-	margin-bottom: 0;
-}
-.g_config_back {
-	position: absolute;
-	top: 0; left: 0;
-	height: 28px;
-}
-.g_config_templates {
-	width: fit-content;
-}
-.input_group {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-}
-.input_group > .input_text {
-	display: inline-block;
-	padding-left: 6px;
-	padding-right: 6px;
-	height: 100%;
-	line-height: 46px;
-	white-space: nowrap;
-	background: #ddd;
-	box-sizing: border-box;
-}
-.g_config_inputs input {
-	display: inline-block;
-	width: 100%;
-	min-width: 50px;
-}
-
-input.warn {
-	border: red 3px solid;
-	animation: shiv 0.2s infinite;
-}
-@keyframes shiv {
-    0% {transform: translate(0px, 0px) rotateZ(0deg)}
-    25% {transform: translate(2px, 2px) rotateZ(1deg)}
-    50% {transform: translate(0px, 2px) rotateZ(0deg)}
-    75% {transform: translate(2px, 0px) rotateZ(-1deg)}
-    100% {transform: translate(0px, 0px) rotateZ(0deg)}
-}
-
-.g_config_templates > button {
-	margin: 0;
-	font-size: 1.4rem;
-	padding: 6px 12px;
-	border-radius: 0;
-}
-
-/* rooms */
-.rooms {
-	display: none;
-	background: white;
-	border-radius: 20px;
-	padding: 10px;
-	width: 90%;
-	min-width: 300px;
-	height: 60%;
-	margin: 30px auto 0;
-	color: #333;
-}
-.rooms_head {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 10px;
-	height: 50px;
-}
-.rooms_head > button {
-	background: transparent;
-	border: 1px solid #333;
-	border-radius: 20px;
-	margin: 0;
-}
-
-.rooms.active {display: block;}
-
-.rooms_overflowwrap {
-	height: calc(100% - 60px);
-	overflow-y: auto;
-}
-.rooms_body {
-	width: 100%;
-}
-
-.room_card {
-	display: flex;
-	flex-wrap: wrap;
-	padding: 10px;
-	border-radius: 20px;
-	border: 1px solid #333;
-	margin-bottom: 10px;
-}
-.room_card_elm {
-	padding: 0 10px;
-}
-.room_card_owner {
-	color: tomato;
-}
-[data-status='waiting'] .room_card_status{
-	color: rgb(19, 183, 233);
-}
-[data-status='matched'] .room_card_status{
-	color: rgb(34, 187, 34);
-}
-[data-status='ongame'] .room_card_status{
-	color: rgb(233, 64, 64);
-}
-[data-status='ended'] .room_card_status{
-	color: rgb(63, 63, 63);
-}
-
-.room_card_btns {
-	margin-left: auto;
-}
-.room_card_btn {
-	margin: 0 10px;
-	display: inline-block;
-}
-.room_card_btn:disabled, .room_card_btn:disabled:hover {
-	opacity: 0.6;
-}
-
-
-/* waiting/matched */
-.waiting_screen, .matched_screen {
-	width: 90%;
-	text-align: center;
-	padding: 30px 0;
-	display: none;
-	margin: 0 auto;
-}
-.waiting_screen_body, .matched_screen_body {
-	background: rgba(255, 255, 255, 0.8);
-	font-size: 18px;
-	padding-top: 10px;
-	border-radius: 20px;
-}
-.waiting_screen p, .matched_screen p {
-	padding-bottom: 10px;
-}
-.waiting_screen.active, .matched_screen.active {
-	display: block;
-}
 
 /* game screen */
 .g_wrap {
@@ -834,7 +449,7 @@ input.warn {
 	bottom: 20px; left: 50%;
 	transform: translateX(-50%);
   	background-image: linear-gradient(135deg, #b8751e 0%, #ffce08 37%, #fefeb2 47%, #fafad6 50%, #fefeb2 53%, #e1ce08 63%, #b8751e 100%);
- 	-webkit-background-clip: text;
+ 	background-clip: text;
   	-webkit-text-fill-color: transparent;
 }
 
@@ -882,113 +497,8 @@ input.warn {
 	background: white;
 }
 
-.user_number, .bottom_username {
-	position: absolute;
-	bottom: 10px;
-	left: 10px;
-	color: white;
-}
-.bottom_username {
-	left: unset;
-	right: 10px;
-}
 
 
-/* chat */
-.open_chat_btn {
-	display: none;
-}
-.open_chat_btn.active {
-	display: block;
-}
-.open_chat_btn.right-top {
-	position: absolute;
-	top: 10px; right: 10px;
-	background: transparent;
-}
-.chat_wrap {
-	position: absolute;
-	top: 0; left: -100%;
-	width: 100%; height: 100%;
-	max-width: 400px;
-	background: rgba(255,255,255, 0.4);
-	overflow: hidden;
-	z-index: 50;
-	transition: all 0.6s;
-	opacity: 0;
-}
-.chat_wrap.active {
-	opacity: 1;
-	left: 0;
-}
-.chat {
-	width: 100%;
-	height: 100%;
-}
-.chat_head {
-	background: rgb(63, 116, 26);
-	color: white;
-	height: 50px;
-	display: flex;
-}
-.chat_close {
-	height: 50px;
-	width: 50px;
-	background-image: url('../img/del.png');
-	background-repeat: no-repeat;
-	background-position: center center;
-	background-color: transparent;
-	padding: 0;
-}
-.chat_head h3 { 
-	margin: 0;
-	padding-left: 20px;
-	line-height: 50px;
-}
-.chat_area {
-	height: calc(100% - 100px);
-	background: rgba(255,255,255,0.9);
-	padding: 10px;
-	list-style: none;
-	overflow-y: auto;
-	margin: unset;
-}
-
-.chat_item {
-	margin-bottom: 6px;
-}
-.chat_sender {
-	font-weight: bold;
-}
-.chat_time {
-	color: #999;
-}
-.chat_msg {
-	margin-bottom: 0;
-	padding-left: 16px;
-}
-
-
-.chat_control {
-	height: 50px;
-	display: flex;
-}
-.chat_input {
-	height: 50px;
-	width: calc(100% - 50px);
-	padding: 4px 6px;
-}
-.chat_submit {
-	height: 50px;
-	width: 50px;
-	padding: 0;
-	background-repeat: no-repeat;
-	background-position: center center;
-	background-image: url('../img/submit.png');
-	background-size: contain;
-	background-color: rgb(63, 116, 26);;
-	border-radius: unset;
-}
 
 html[data-env='development'] .square.bomb {
 	background: rgba(255,50,50,0.5);
@@ -999,7 +509,7 @@ html[data-env='development'] .square.bomb {
 		font-size: 3rem;
 		margin-bottom: 0;
 	}
-	.main_options {
+	.lobby__mainops {
 		padding-top: 10px;
 		padding-bottom: 10px;
 	}

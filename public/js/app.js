@@ -18,6 +18,7 @@ socket.on('initial info', (data) => {
 	data.rooms.forEach((room) => {
 		createRoomCard(room);
 	});
+	getDOM('detail_userid').textContent = socket.id;
 	loadCompleted();
 });
 socket.on('disconnect', () => {
@@ -34,15 +35,14 @@ socket.on('users change', (num) => {
 	updateUserNumber(num)
 });
 function updateUserNumber(num) {
-	elms.user_number.textContent = num
+	getDOM('detail_usernum').textContent = num
 }
 
 if (env === 'development') {
-	SDF('main-title', 'click', function() {
+	SDF('lobby__title', 'click', function() {
 		socket.emit('debug');
 	});
 }
-
 
 SDF('allow_sound', 'click', function() { 
 	SE.allowed = true;
@@ -60,15 +60,15 @@ SDF('victory_img', 'click', () => SE.play('win'));
 // user form
 let username = localStorage.getItem('username');
 if (username !== null) {
-	elms.user_form.classList.remove('active');
-	elms.main_options.classList.add('active');
+	getDOM('lobby__userform').classList.remove('active');
+	getDOM('lobby__mainops').classList.add('active');
 	login(username);
 } else {
 	// set random name in conf_use_name
 	elms.f_username.value = randTextGenerator.getStrings('ja', 5);
 	elms.f_username.addEventListener('click', function() {{this.value = ''}}, {once:true});
 }
-SDF(user_form, 'submit', function(e) {
+SDF('lobby__userform', 'submit', function(e) {
 	e.preventDefault();
 	e.stopPropagation();
 	const name = elms.f_username.value;
@@ -80,34 +80,36 @@ SDF(user_form, 'submit', function(e) {
 		localStorage.setItem('username', name);
 		login(username);
 		elms.f_username.classList.remove('warn')
-		elms.user_form.classList.remove('active');
-		elms.main_options.classList.add('active');
+		getDOM('lobby__userform').classList.remove('active');
+		getDOM('lobby__mainops').classList.add('active');
 	}
 });
 function login(name) {
 	socket.emit('login', name)
-	getDOM('bottom_username').textContent = name;
+	// new User()?
+	getDOM('detail_username').textContent = name;
 }
 
 // main options (solo or multi)
 SDF(solo_btn, 'click', function() {
-	elms.main_options.classList.remove('active');
+	getDOM('lobby__mainops').classList.remove('active');
 	openGameConfig('solo');
 });
 SDF(multi_btn, 'click', function() {
-	elms.main_options.classList.remove('active');
-	elms.rooms_wrap.classList.add('active');
+	getDOM('lobby__mainops').classList.remove('active');
+	elms.rooms__wrap.classList.add('active');
 });
 
 
 // rooms
-SDF('create_room', 'click', function() {
-	elms.rooms_wrap.classList.remove('active');
+SDF('create__room', 'click', function() {
+	elms.rooms__wrap.classList.remove('active');
 	openGameConfig('multi');
 })
-SDF('room_back', 'click', function() {
-	elms.rooms_wrap.classList.remove('active');
-	elms.main_options.classList.add('active');
+SDF('room__back', 'click', function() {
+	elms.rooms__wrap.classList.remove('active');
+	elms.lobby__mainops.classList.add('active');
+	resetMatchwait();
 });
 
 // create/destroy room
@@ -122,19 +124,20 @@ function createRoom(owner, width, height, bomb) {
 	socket.emit('create room', data);
 
 	closeGameConfig('multi');
-	elms.rooms_wrap.classList.remove('active');
-	elms.waiting_screen.classList.add('active');
+	elms.rooms__wrap.classList.remove('active');
+	getDOM('matchwait').classList.add('active');
 }
 
 socket.on('created your room', (room) => {
 	myroom.server = room;
-	getDOM('waiting_roomname').textContent = room.owner;
+	getDOM('matchwait__wait').classList.add('active');
+	getDOM('matchwait__wait-rooname').textContent = room.owner;
 });
 
-SDF('waiting_back', 'click', () => {
+SDF('matchwait__back', 'click', () => {
 	socket.emit('destroy room', myroom.server.id);
-	elms.waiting_screen.classList.remove('active');
-	elms.rooms_wrap.classList.add('active');
+	resetMatchwait()
+	elms.rooms__wrap.classList.add('active');
 });
 
 socket.on('destroyed your room', (id) => {
@@ -145,7 +148,7 @@ socket.on('destroyed your room', (id) => {
 socket.on('room added', (data) => {createRoomCard(data);});
 socket.on('room removed', (id) => {
 	try {
-		getDOM(`room_card_${id}`).remove();
+		getDOM(`roomcard__${id}`).remove();
 	} catch (e) {
 		devlog('なんらかの理由で既にないルームカードを消そうとしました');
 		devlog(e);
@@ -155,11 +158,11 @@ socket.on('room removed', (id) => {
 // join the room
 // emit-join is defined in createRoomCard()
 socket.on('room matched', (id) => {
-	const card = getDOM(`room_card_${id}`);
-	const status = card.querySelector('.room_card_status');
+	const card = getDOM(`roomcard__${id}`);
+	const status = card.querySelector('.roomcard__status');
 	status.textContent = 'マッチ完了';
 	card.dataset.status = 'matched';
-	card.querySelector('.room_card_join').setAttribute('disabled', true);
+	card.querySelector('.roomcard__join').setAttribute('disabled', true);
 })
 
 socket.on('you got matched', (room) => {
@@ -167,13 +170,14 @@ socket.on('you got matched', (room) => {
 	myroom.server = room;
 	const isOwner = room.ownerID === socket.id;
 	const opponent = isOwner ? room.player : room.owner;
-	getDOM('matched_screen_opponent').textContent = opponent;
-	if (isOwner) {
-		elms.waiting_screen.classList.remove('active');
-	} else {
-		elms.rooms_wrap.classList.remove('active');
+
+	getDOM('matchwait__done-opp').textContent = opponent;
+	if (!isOwner) {
+		elms.rooms__wrap.classList.remove('active');
+		getDOM('matchwait').classList.add('active')
 	}
-	elms.matched_screen.classList.add('active');
+	getDOM('matchwait__wait').classList.remove('active');
+	getDOM('matchwait__done').classList.add('active');
 
 	const time = getDOM('game_start_in');
 	time.textContent = 5;
@@ -184,19 +188,25 @@ socket.on('you got matched', (room) => {
 		if (count < 0) {
 			clearInterval(countdownID);
 			readyMulti(room.id);
-			elms.matched_screen.classList.remove('active');
+			resetMatchwait();
 		}
 	}, 1000);
 	
 });
 
+function resetMatchwait() {
+	getDOM('matchwait__done').classList.remove('active');
+	getDOM('matchwait__wait').classList.remove('active');
+	getDOM('matchwait').classList.remove('active');
+}
+
 // room start (ongame)
 socket.on('room started', (id) => {
-	const card = getDOM(`room_card_${id}`);
-	const status = card.querySelector('.room_card_status');
+	const card = getDOM(`roomcard__${id}`);
+	const status = card.querySelector('.roomcard__status');
 	status.textContent = '対戦中';
 	card.dataset.status = 'ongame';
-	// card.querySelector('.room_card_observe').setAttribute('disabled', false);
+	// card.querySelector('.roomcardobserve').setAttribute('disabled', false);
 });
 
 function readyMulti(id) {
@@ -209,8 +219,8 @@ socket.on('start your game', (room) => {
 
 // room ended
 socket.on('room ended', (id) => {
-	const card = getDOM(`room_card_${id}`);
-	const status = card.querySelector('.room_card_status');
+	const card = getDOM(`roomcard__${id}`);
+	const status = card.querySelector('.roomcard__status');
 	status.textContent = '終了';
 	card.dataset.status = 'ended';
 })
@@ -223,8 +233,8 @@ function setDefValue() {
 	elms.f_height.value = localStorage.getItem('last_game_height') || 10;
 	elms.f_bomb.value = localStorage.getItem('last_game_bomb_amount') || 20;
 }
-SDF(elms.g_config, 'change', configValidation);
-SDF(elms.g_config, 'submit', function(e) {
+SDF('gconf', 'change', configValidation);
+SDF('gconf', 'submit', function(e) {
 	e.preventDefault();
 	e.stopPropagation();
 	const validation = configValidation();
@@ -242,7 +252,7 @@ SDF(elms.g_config, 'submit', function(e) {
 	localStorage.setItem('last_game_bomb_amount', j_bomb);
 
 	// solo or multi
-	const type = elms.g_config.classList.contains('solo') ? 'solo' : 'multi';
+	const type = elms.gconf.classList.contains('solo') ? 'solo' : 'multi';
 	if (type === 'solo') {
 		initiate('solo' ,j_width, j_height, j_bomb);
 	} else if (type === 'multi') {
@@ -268,7 +278,7 @@ function setTemplate(array) {
  * @returns {Object} .messages (array)
  */
 function configValidation() {
-	const isMulti = elms.g_config.classList.contains('multi');
+	const isMulti = elms.gconf.classList.contains('multi');
 	let result = {
 		isOK: true,
 		messages: []
@@ -357,28 +367,28 @@ SDF('widen_menu_btn', 'click', function() {
 
 
 // chat
-document.querySelectorAll('.open_chat_btn').forEach((btn) => {
-	btn.addEventListener('click', function() {
-		this.classList.remove('active');
-		elms.chat_wrap.classList.add('active');
-	})
+SDF('open_chat_btn', 'click', () => {
+	getDOM('chat__wrap').classList.add('active');
+	getDOM('detail__wrap').classList.remove('active');
 })
-SDF('close_chat_btn', 'click', () => {
-	elms.chat_wrap.classList.remove('active');
-	document.querySelectorAll('.open_chat_btn').forEach((btn) => {
-		btn.classList.add('active');
-	})
-})
-SDF(elms.chat_form, 'submit', function(e) {
+SDF('close_chat_btn', 'click', closeChat);
+SDF('chat__wrap', 'click', closeChat);
+SDF('chat', 'click', function(e) {e.stopPropagation()})
+
+function closeChat() {
+	getDOM('chat__wrap').classList.remove('active');
+
+}
+SDF('chat__control', 'submit', function(e) {
 	e.preventDefault();
 	e.stopPropagation();
-	const msg = elms.chat_input.value;
+	const msg = getDOM('chat__control-input').value;
 	if (msg.length === 0) return;
 	if (msg.length > 100) {
 		createNotice('メッセージは100文字以内にしてください');
 		return;
 	}
-	elms.chat_input.value = '';
+	getDOM('chat__control-input').value = '';
 	sendChat(msg);
 })
 
@@ -392,18 +402,48 @@ socket.on('user chat', (data) => {
 
 // msg, sender, socketid, type
 function addChat(data) {
-	const tmp = elms.chat_tmp;
-	const area = elms.chat_area;
+	const tmp = getDOM('chat__tmp');
+	const area = getDOM('chat__area');
 	const clone = tmp.content.cloneNode(true);
-	const item = clone.querySelector('.chat_item');
+	const item = clone.querySelector('.chat__item');
 	item.dataset.sender = data.sender;
 	if (data.socketid !== undefined) item.dataset.socketid = data.socketid;
 	const type = data.type || 0;
 	item.dataset.type = type;
-	item.querySelector('.chat_msg').textContent = data.msg;
-	item.querySelector('.chat_sender').textContent = data.sender;
-	item.querySelector('.chat_time').textContent = formatDate(new Date(), 'hh:mm:ss');
+	item.querySelector('.chat__item-msg').textContent = data.msg;
+	item.querySelector('.chat__item-sender').textContent = data.sender;
+	item.querySelector('.chat__item-time').textContent = formatDate(new Date(), 'hh:mm:ss');
 	area.append(clone);
 
 	area.scrollTop = area.scrollHeight;
 }
+
+// detail
+SDF('open_detail_btn', 'click', () => {
+	getDOM('detail__wrap').classList.add('active')
+	getDOM('chat__wrap').classList.remove('active')
+})
+SDF('close_detail_btn', 'click', closeDetail)
+SDF('detail__wrap', 'click', closeDetail)
+SDF('detail', 'click', function(e) {e.stopPropagation()})
+function closeDetail() {
+	getDOM('detail__wrap').classList.remove('active');
+}
+
+SDF('user_reset_btn', 'click', function() {
+	if (confirm('リセットして再度読み込みします')) {
+		localStorage.removeItem('username')
+		location.reload();
+	} else {
+		createNotice('リセットをキャンセルしました')
+	}
+})
+
+// history accordion
+const history = document.querySelectorAll('.history__item-head')
+history.forEach((head) => {
+	head.addEventListener('click', function() {
+		this.parentNode.classList.toggle('active')
+	})
+	
+})
